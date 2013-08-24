@@ -1,0 +1,30 @@
+<!--
+    All parameters are made available as $this->parameter.
+
+    For instance, writing the code
+        $template->entries = $entries;
+    or the "shorter" form
+        NF_Template::runDefault(null, array('entries' => $entries));
+    will make $entries available here as $this->entries.
+-->
+<? if (count($this->entries) == 0): ?>
+    <p>[@No blog posts.]</p>
+<? else: ?>
+    <? foreach($this->entries as $entry): ?>
+        <div class="entry" id="entry-<?= $entry->id ?>">
+            <h2 class="entry-title"><a href="<?= $this->ref('item', $entry->id) ?>"><?= html($entry->title) ?></a></h2>
+            <!-- $entry->created is an NF_DateTime, so we can format it much nicer -->
+            <div class="entry-date"><?= html($entry->created->format('l, F jS Y \a\t g:ia')) ?></div>
+            <div class="entry-body"><?= $entry->text ?></div>
+            <div class="entry-comments">
+                <? if ($entry->comments): ?>
+                    (<?= $entry->comments ?> comments)
+                <? else: ?>
+                    [@(No comments on this article.)]
+                <? endif ?>
+            </div>
+        </div>
+    <? endforeach ?>
+<? endif ?>
+
+<? Paginator::render(10, Data_BlogEntry::getPostCount()) ?>

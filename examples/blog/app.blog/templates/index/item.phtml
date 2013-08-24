@@ -1,0 +1,42 @@
+<? $entry = $this->entry ?>
+
+<div class="entry" id="entry-<?= $entry->id ?>">
+    <h2 class="entry-title"><?= html($entry->title) ?></h2>
+    <div class="entry-body"><?= $entry->text ?></div>
+</div>
+
+<h3>[@Comments]</h3>
+
+<? if (empty($entry->objComments)): ?>
+    <p>[@No comments.]</p>
+<? endif ?>
+
+<? foreach($entry->objComments as $u): ?>
+    <div class="comment" id="comment-<?= $u->id ?>">
+        <div class="comment-header"><?= html($u->signed) ?> @ <?= html($u->ip) ?> [@said...] (<?= $u->created->format('M jS g:ia') ?>)</div>
+        <div class="comment-body"><?= nl2br(html($u->text)) ?></div>
+    </div>
+<? endforeach ?>
+
+<h3>[@Add new comment]</h3>
+<? if ($this->errmsg): ?>
+    <div class="errmsg"><?= html($this->errmsg) ?></div>
+<? endif ?>
+<form method="post">
+    <?= $this->form ?>
+
+    <label class="left-label" for="add-comment-name">[@Your name]</label>
+    <input type="text" name="name" id="add-comment-name" style="width: 30em;" placeholder="[@Your name...]" value="<?= html(trim($Request->name)) ?>">
+    <br>
+
+    <label class="left-label" for="add-comment-email">[@Your email address]</label>
+    <input type="text" name="email" id="add-comment-email" style="width: 30em;" placeholder="[@name@company.com]" value="<?= html(trim($Request->email)) ?>">
+    <br>
+
+    <br>
+    <label for="add-comment-text">[@Comment]</label><br>
+    <textarea name="text" id="add-comment-text" rows="10" style="width: 40em;" placeholder="[@What did you think of my blogpost?]"><?= html(trim($Request->text)) ?></textarea>
+    <br>
+
+    <input type="submit" value="[@Add comment]">
+</form>

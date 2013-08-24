@@ -1,0 +1,164 @@
+<!doctype html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"/>
+        <title>Get Started with Nifty Framework</title>
+        <link rel="stylesheet" href="style.css"/>
+    </head>
+    <body>
+        <h1>6. Configuration</h1>
+        <p>At the heart of the application information is a file called <tt>/app/settings.conf</tt>. This
+            contains all of the configuration for the Nifty framework and the system classes.</p>
+        <p>A typical setting.conf file may look like this:</p>
+        <code>[database]
+database = local
+
+local_type = MySQL
+local_host = localhost
+local_login = test
+local_database = test
+local_password = password
+
+production_type = MySQL
+production_host = prod-server
+production_login = php-account
+production_database = prod-database
+production_password = secret
+
+[main]
+template = index.phtml
+css[] = "/css/main.css"
+content-type = "text/html; charset=iso-8859-1"
+
+[provider]
+auth = NF_DefaultAuthentication
+
+[debug]
+; Warning: Possible severe security implications 
+; if left on in production environment
+sql = false
+stack-trace = false</code>
+        <p>The file is in standard php.ini format; it is read by the global <tt>$Config</tt> class through
+            the PHP function <tt>parse_ini_file</tt>, for more information about the limitations and options
+            of this function, please see the PHP documentation.</p>
+        
+        <h2>6.1 Database configuration</h2>
+        <p>The conf file usually starts off with database configuration.</p>
+        <code>[database]
+database = local
+
+local_type = MySQL
+local_host = localhost
+local_login = test
+local_database = test
+local_password = password
+
+production_type = MySQL
+production_host = prod-server
+production_login = php-account
+production_database = prod-database
+production_password = secret</code>
+        <p>"local" and "production" are two different databases defined by the system, and which may
+            be selected at any time through the <tt>NF_DB::connect('local')</tt> or <tt>NF_DB::connect('production')</tt> call.
+            Of course, an unlimited number of databases may be defined; nor is the system limited to
+            the particular names 'local' and 'production' - it is simply for convenience during
+            development.</p>
+        <p>Settings <tt>database = local</tt> in the beginning means that this is the <i>default</i>
+            database. This means, that if you provide no parameter to <tt>NF_DB::connect()</tt>, it will choose
+            the default database. This means that you can switch between a local, development database,
+            and the main production database, with the flick of a switch.</p>
+        <p>The database type is the name of the PDO driver you want to use.</p>
+        
+        <h2>6.2 Master template configuration</h2>
+        <p>Oftentimes it is valuable to provide a default, master template for your site. This means
+            that whatever templates your pages use, they will always be inserted into a master template,
+            providing uniform looks and styling across the entire site. These values below are automatically
+            read by the <tt>$Response</tt> object:</p>
+        <code>[main]
+template = index.phtml
+js[] =
+css[] = /css/main.css
+title = 
+content-type = "text/html; charset=iso-8859-1"</code>
+        <p><tt>template</tt> defines the master template. In this case, a default css file is provided too.
+            This is loaded into <tt>$Response->css[]</tt>, and will be inserted into the master template's
+            <@css> tag.</p>
+        <p>If you do not define a master template, the <tt>$Response->contents</tt> field will be the only
+            data sent to the client without further parsing.</p>
+            
+        <h2>6.3 Providers</h2>
+        <code>[provider]
+auth = NF_DefaultAuthentication</code>
+        <p>A mechanism exists to dynamically instantiate different provider services. The only
+            subsystem to use this right now is the authentication subsystem, detailed in another
+            part of this document.</p>
+        <p>However, it is possible to automatically acquire an instance of a provider through 
+            for instance calling <tt>$instance = $Config->getProvider('auth');</tt> -- the <tt>NF_Config</tt> class will
+            then automatically instantiate an <tt>NF_DefaultAuthentication</tt> singleton object and return a reference
+            of this to the caller.</p>
+        <p>This behavior may be expanded to any number of situations, where you want a highly
+            configurable, dynamic provider-class solution.</p>
+
+        <h2>6.4 Debugging information</h2>
+        <code>[debug]
+sql = false
+stack-trace = false</code>
+        <p>These two variables control logging and debugging.</p>
+        <p>Setting <tt>sql</tt> to true will cause all SQL queries generated by the system to be logged
+            to the Apache error log. This is handy in situations where you may have incorrect
+            queries submitted, and you're trying to figure out where the Persistence layer goes
+            wrong.</p>
+        <p>Setting <tt>stack-trace</tt> to true will print out a stack trace every time an exception is caught
+            by the system. This is very useful in debugging.</p>
+        <p class="security">Printing stack traces can also mean grave security implications,
+            as function parameter data is usually printed by PHP, and may lead to the disclosure of
+            database passwords or other sensitive data.</p>
+
+        <h2>6.5 The $Config object</h2>
+        <p>There is a global <tt>$Config</tt> available to the system, which contains all of the information
+            read from the configuration file.</p>
+        <table>
+            <tr>
+                <th>Method</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td><i>section->value</i></td>
+                <td>It is possible to read values directly from <tt>$Config</tt> by referring to sections
+                    and values. A call to <tt>$Config->main->template</tt> will give you the name of the 
+                    master template. This way of accessing <tt>$Config</tt> is very safe and fault-tolerant,
+                    and returns <tt>null</tt> if the value isn't found.<br>
+                    <br>
+                    Note that hyphens (-) in settings.conf translate into underscores (_).</p>
+            </td>
+            <tr>
+                <td><tt>getValue($section, $value, $default = '')</tt></td>
+                <td>Extract a particular value from a particular section.</td>
+            </tr>
+            <tr>
+                <td><tt>getBool($section, $value, $default = false)</tt></td>
+                <td>Extract a boolean value from a particular section.<td>
+            </tr>
+            <tr>
+                <td><tt>getProvider($provider)</tt></td>
+                <td>Request an instance of a particular provider. Used normally for authentication,
+                    but can be used for many other purposes. The generated instances are always
+                    singletons.<td>
+            </tr>
+            <tr>
+                <td><tt>getDatabaseConnection($dbref = '')</tt></td>
+                <td>Return an object containing all the connection information to a particular
+                    database. If no dbref is given, choose the default database connection.<td>
+            </tr>
+        </table>
+
+        <p>Of course, the settings.conf file can be expanded to contain any and all custom
+            settings information you may need in your particular application. An entire section
+            can be extracted from the configuration by using a <tt>$Config->section</tt> call, e.g. 
+            <tt>$Config->main</tt> returns an array with all data from the "main" section.</p>
+        <p class="security">Never, ever, in any way, place a copy of settings.conf inside the
+            document root, making it accessible for the web server. Always keep it within the /app
+            folder.</p>
+        
+    </body>
+</html>

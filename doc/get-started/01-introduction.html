@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+        <title>Get Started with Nifty Framework</title>
+        <link rel="stylesheet" href="style.css"/>
+    </head>
+    <body>
+        <h1>1. Introduction</h1>
+        
+        <p>Nifty Framework is the result of a long development building a foundation for corporate websites.
+            It's been an ongoing work since 2005, and has since been through a number of different iterations.
+            This version represents a mature and stable framework that is capable of powering business
+            intranets and websites.</p>
+        <p>It is, however, not a very large framework - it abstracts most functions into a programming style
+            that is easy and yet powerful. Because it is a complete MVC framework, code, data objects and HTML
+            templates are logically separated and easy to work with. The distribution package is typically less
+            than 150 kb in size and yet contains typically everything you need to build a powerful application.</p> 
+            
+        <p><b>Nifty requires PHP 5.3.</b></p>
+        
+        <p>These basic steps will take you through the fundamental structure of Nifty.</p>
+        
+        <h2>1.1 The system</h2>
+        
+        <p>The Nifty PHP Framework does two things.</p>
+        <ol>
+            <li>First, it abstracts requests made to the code, loading classes instead of pages. These classes (controllers)
+                typically load data, and then renders it through html templates (views). It's not very complicated -
+                instead of having separate php files and lots of switch or if clauses, you have classes with methods that
+                can be called.</li>
+            <li>Secondly, it provides a number of objects that contain most things you want to deal with. <tt>$Request</tt> contains
+                the request, <tt>$Response</tt> encapsulates the response. <tt>$Session</tt> provides session data (it's really just a wrapper
+                around <tt>$_SESSION</tt>), and <tt>$Persistence</tt> loads and saves objects from the database (typically MySQL).</li>
+        </ol>
+        
+        <h2>1.2 What can you do with it?</h2>
+        
+        <p>You can write web applications with it.</p>
+        <p>It is, however, NOT a content-management tool. It does not provide website layouts. It does not let you
+            create dynamic webpages (although you can, if you want to - by programming dynamic webpages). It does
+            not give you a lot of ajaxified, cool, dynamic things that you can impress people with. It's a small
+            but efficient framework to build your own applications on top of.</p>
+        <p>If you know about the Zend Framework - then, yeah, this is kind of a Zend Framework, but at a fraction of
+            the size of that one.</p>
+        <p>So... basically, everything you can do with PHP otherwise, except that the code written for Nifty looks a 
+            lot better than plain PHP code. (Actually, that in itself was a big goal.)</p>
+        
+        <h2>1.3 Installing the basic system</h2>
+        
+        <p>When you've downloaded Nifty, unpack it. You will immediately see three folders.</p>
+        <ul>
+            <li><tt>app/</tt> - this is the folder where your application code goes. This is where pages, classes, configuration 
+                and templates are stored. This folder should never be accessible to the outside world.</li>
+            <li><tt>public/</tt> - here are the <b>*public*</b> files for your website, such as images, javascript files, CSS styles,
+                and so on. This is where the web server root should be - never point your web server root to anything else! Although,
+                it doesn't matter much what you call it - public, html, wwwroot or anything else: Nifty will automatically resolve the
+                path for you.</li>
+            <li><tt>sys/</tt> - this is where Nifty stores it's own system classes. You don't need to look into here, unless you're
+                checking out the Nifty framework code, which you are encouraged to do.</li>
+        </ul>
+        
+        <p>Nifty requires the use of a small <tt>index.php</tt> and <tt>.htaccess</tt> file, for intercepting and handling requests.
+            All requests are rewritten automatically to index.php, which captures the request and forwards it to the appropriate
+            page class. Of course, any file that you put into the public folder is always reachable.</p>
+            
+        <p>It is also possible to be creative with applications. You can rename the <tt>app</tt> folder to <tt>app.myapp</tt>, for instance,
+            and put the <tt>index.php</tt> file in a <tt>public/my</tt> folder. This enables you to run several Nifty applications on
+            a single server, or combine your Nifty application with other PHP applications, blogs, CMS systems or anything else.
+            Nifty can usually figure out very well how things work. (You do need to adapt <tt>index.php</tt> slightly, but we'll get to that.)</p>
+        
+        <h2>1.4 Anatomy of a Request</h2>
+        
+        <p>When the web server receives a request, there are a number of stages that Nifty goes through to handle it. Taking a brief
+            look at the various stages will help you understand how Nifty works and how to start writing your own pages.</p>
+         
+        <ol>
+            <li>Any request goes through the <tt>.htaccess</tt> file, and makes Apache take a look at the request. If it references
+                a valid file somewhere, like CSS files or images, it's usually just passed on through; but if it doesn't reference
+                any existing file, it gets intercepted and forwarded to <tt>index.php</tt>.</li>
+                
+            <li><tt>index.php</tt> bootstraps the whole thing - but it, in itself, is usually just three lines of code: One that loads
+                the framework, one that handles the request, and one that sends the response, if any, back to client. It's possible
+                to adapt this if you want some extra processing to be done, but there are also hooks inside the framework that you
+                can work with.</li>
+                
+            <li>Nifty then initializes itself, sets up a few global objects, like <tt>$Request</tt>, <tt>$Response</tt>, <tt>$Config</tt>
+                and a few others. It then proceeds to examine the URL and tries to find any page in <tt>app/pages</tt> that maps to 
+                the URL. For instance, <tt>/</tt> maps to the call <tt>Index->executeView()</tt>, and <tt>/customer/item/view/3605</tt> 
+                maps to <tt>Customer_Item->executeView(3605)</tt>. We'll go over all this in detail.</li>
+
+            <li>The page class is loaded and instantiated, <tt>init()</tt> is run (where you can stuff all kinds of gooey things like 
+                page initialization, components etc), and then the <tt>execute...()</tt> method is called, whatever the URL calls for
+                (the default is always "view" which means executeView()). The method runs, probably loads a lot of data from databases,
+                and runs the result through a template for that particular page and method, rendering it to HTML. It then leaves,
+                and <tt>finish()</tt> is called, which gives the page a chance to do some last-minute cleanup.</li>
+                
+            <li>When Nifty is back in charge, if looks to see if there's a master template specified. If so, it inserts the result from
+                the page into the master template, which produces the final page, and then sends the result back to the user.</li>
+        </ol>
+            
+        <p>&nbsp;</p>
+    </body>
+</html>

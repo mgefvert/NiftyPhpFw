@@ -1,0 +1,41 @@
+<h1>[@Administration]</h1>
+
+<? $s = $this->statistics ?>
+
+<style>
+
+    .option { padding: 0 0 2em 40px; background: url(/img/median.png) left top no-repeat; }
+
+</style>
+
+<br>
+
+<div class="option">
+    <!-- We use sprintf() and _t() here instead of the normal [@] stuff - because we have parameters (%s, %d).
+         Also, we couldn't put the text in [@], because it gets evaluated after all PHP function have run, and
+         by that time, the string would have changed depending on the parameters - making it impossible to
+         match against translation data. -->
+    <?= sprintf(_t('There are %d blog posts in total, with %d posted during the last month.'), $s->totalEntries, $s->monthEntries) ?><br>
+    <br>
+    <button type="button" onclick="location.href='/admin/posts/edit'"><img src="/img/fatcow/add.png"> [@Write blog post]</button>
+    <button type="button" onclick="location.href='/admin/posts'"><img src="/img/fatcow/page.png"> [@Review blog posts]</button>
+</div>
+
+<div class="option">
+    <?= sprintf(_t('There are %d comments in total, with %d posted during the last month.'), $s->totalComments, $s->monthComments) ?><br>
+    <br>
+    <button type="button" onclick="location.href='/admin/comments'"><img src="/img/fatcow/user_comment.png"> [@Review comments]</button>
+</div>
+
+<div class="option">
+    <?= sprintf(_t('There are %d users.'), $s->totalUsers) ?><br>
+    <br>
+    <button type="button" onclick="location.href='/admin/users'"><img src="/img/fatcow/group.png"> [@Edit users]</button>
+</div>
+
+<div class="option">
+    <?= sprintf(_t('The title for this website is "%s" at <a href="%s">%s</a>.'),
+            html($Application->appTitle), html($Application->appURL), html($Application->appURL)) ?><br>
+    <br>
+    <button type="button" onclick="location.href='/admin/settings'"><img src="/img/fatcow/cog.png"> [@Edit website settings]</button>
+</div>

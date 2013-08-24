@@ -1,0 +1,193 @@
+<!doctype html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"/>
+        <title>Get Started with Nifty Framework</title>
+        <link rel="stylesheet" href="style.css"/>
+    </head>
+    <body>
+        <h1>7. Sessions and Authentication</h1>
+        <p>PHP normally generates session cookies for visitors to your site. The global <tt>$Session</tt>
+            variable encapsulates some of that functionality - while maintaining transparency -
+            to make it easier to handle session and session data.</p>
+        
+        <h2>7.1 Using sessions</h2>
+        <p>As soon as you reference the <tt>$Session</tt> object, PHP will create (if not already created)
+            a session ID and a session cookie for the user. This handling is entirely transparent
+            and nothing that the developer needs to think specifically about.</p>
+        <p>From that point on, variable data may be assigned to <tt>$Session</tt> as any other data, with
+            the added benefit that this data is persisted across HTTP calls, for as long as the
+            session remains active. (This data maps neatly onto <tt>$_SESSION</tt>, so there is no special
+            handling in any way.)</p>
+        <code>global $Session;
+        
+$Session->name = 'Jack';
+print_r($_SESSION);</code>
+
+        <h2>7.2 The $Session object</h2>
+        <p>There are a few methods that apply to <tt>$Session</tt>:</p>
+        <table>
+            <tr>
+                <th>Method</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td><i>variable</i></th>
+                <td>Direct access to a variable. May store values, objects, etc.</td>
+            </tr>
+            <tr>
+                <td><tt>uid</tt></th>
+                <td>This variable, meaning "user id", is the key to <tt>NF_DefaultAuthentication</tt>. Whenever
+                    <tt>uid</tt> is set, it knows that we have an authenticated session and will give you
+                    access to <tt>NF_AuthPage</tt> and so on. Set <tt>uid</tt> to indicate that the user is logged in
+                    with a particular user id.<br>
+                    <br>
+                    If you don't use <tt>NF_DefaultAuthentication</tt>, but use your own class, you may choose to
+                    verify sessions through other means than by checking/setting the <tt>uid</tt> value.</td>
+            </tr>
+            <tr>
+                <td><tt>delete($key)</tt></td>
+                <td>Deletes the variable <tt>$key</tt> from the session data.</td>
+            </tr>
+            <tr>
+                <td><tt>clear()</tt></td>
+                <td>Clears all variables from the session data.</td>
+            </tr>
+            <tr>
+                <td><tt>regenerate()</tt></td>
+                <td>Regenerate the session ID. This is the recommended practice whenever there is
+                    an elevation of privileges in a session. Regenerating the session ID is always
+                    recommended when you login or logout. It may prevent some session hijacking attacks.</td>
+            </tr>
+            <tr>
+                <td><tt>end()</tt></td>
+                <td>Destroy the session.</td>
+            </tr>
+        </table>
+        
+        <h2>7.3 Authenticated sessions</h2>
+        <p>The great interest in session comes when we start handling login/logout and single sign-on
+            functionality. In this way, sessions mean that we can map the request to something useful - 
+            a user that we know something about.</p>
+        <p>This means that we connect the <tt>$Session</tt> information with an Authentication provider.</p>
+        <p>In the Configuration section of this document, you may have read about provider instances
+            - the session layer uses this provider information to gain access to the
+            authentication mechanism you want. Normally, there are too many ways to authenticate
+            yourself and too many ways of looking up that authentication data; this is why Nifty only
+            provides an extremely simple authentication class. You are encouraged to
+            write your own if you need more - but this is usually not necessary.</p>
+        <p>The authentication provider is expected to conform to the <tt>NF_IAuthentication</tt> interface, which
+            requires one simple method:</p>
+        <table>
+            <tr>
+                <th>Method</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td><tt>verifyAuthentication()</tt></td>
+                <td>This function should check into the registered data in the <tt>$Session</tt> variable,
+                    and see if the user is authenticated or not. If he is, return true.</td>
+            </tr>
+        </table>
+        <p><tt>NF_AuthPage</tt>, the base class provided authentication-restricted pages, checks this information:
+            It calls <tt>$Config</tt>, and asks it for the authentication provider. When it gets an instance
+            of this class, <tt>NF_AuthPage</tt> asks it through <tt>verifyAuthentication()</tt> if the current session
+            is authenticated. If it isn't, it immediately throws an <tt>NF_EAccessDenied</tt> exception, resulting
+            in a 403 Unauthorized response.</p>
+            
+        <h2>7.4 NF_DefaultAuthentication</h2>
+        <p>The class NF_DefaultAuthentication provides this method by checking the <tt>$Session->uid</tt> variable.</p>
+        <p>If <tt>$Session->uid</tt> is set to a value, this class considers the session authenticated, 
+            otherwise not. The theory is that the user logs in through a login form, provided by
+            a login page (obviously descending from <tt>NF_Page</tt> and not <tt>NF_AuthPage</tt>). The application then checks
+            the username/password against a database; and if it's good, it sets <tt>$Session->uid</tt> to the 
+            specific user ID.</p>
+        <p>From that point on, as long as that <tt>$Session->uid</tt> is set, the session is considered
+            authenticated. To logout, you would simply call <tt>$Session->end()</tt> to destroy the 
+            whole session altogether - or just blank out the <tt>uid</tt> value.</p>
+        <p class="security">It is considered good habit to always regenerate the session ID through
+            <tt>$Session->regenerate()</tt> whenever the user logs in or out.</p>
+        
+        <h2>7.5 A login example</h2>
+        <p>The following is an example of how to handle login functionality in a web page. It demonstrates
+            looking up user data in a database, handling input from a login page, and the use of the NF_Password class.</p>
+        <code>public function executeLogin($username, $password)
+{
+    global $Persistence, $Response, $Session;
+
+    $user = array_shift($Persistence->loadByFields('Data_User', array('username' => $username)));
+    if (!$user)
+        throw new NF_EForbidden('Invalid username or password.');
+
+    if (NF_Password::compare($password, $user->password) == false)
+        throw new NF_EForbidden('Invalid username or password.');
+
+    $Session->regenerate();
+    $Session->uid      = $user->id;
+    $Session->fullname = $user->fullname;
+    $Response->slowRedirect('/admin/main');
+}</code>
+        
+        <h2>7.6 Enabling single sign-on</h2>
+        <p>Single sign-on is an interesting topic, since many intranets today use SSO. Both Internet
+            Explorer and Firefox supports NTLM (or SSPI) authentication, enabling users to log in
+            transparently with their domain username and password (e.g. BIGCORP\joe). Single sign-on means
+            that Windows automatically authenticates a connection, and fills out the REMOTE_USER value in $_SERVER
+            with the user's domain name.</p>
+        <p>Writing a custom authentication handler for this means doing the following:</p>
+        <ol>
+            <li>Create a new class in the <tt>/app/classes</tt> folder, something like <tt>AuthSSOProvider.php</tt>.</li>
+            <li>Write some code in this class to the following effect:<br>
+                <code>&lt;?php
+
+class AuthSSOProvider implements NF_IAuthentication
+{
+    public function verifyAuthentication()
+    {
+        global $Session, $_SERVER;
+
+        // Did the client supply a username?
+        if (($username = $_SERVER['REMOTE_USER']) == '')
+            return false;
+
+        // Is the username different from what we had before?
+        if ($Session-&gt;username != $username)
+        {
+            // Lookup user in our own database table
+            $data = array_shift(NF_DB::connect()-&gt;queryAsObjects(
+                'select * from users where domainname=?', $username));
+
+            // Did the user exist?
+            if (!$data)
+                return false;
+
+            // The user exists. Fill out some values for future reference.
+            $Session-&gt;username = $x->domainname;
+            $Session-&gt;fullname = $x->fullname;
+            $Session-&gt;userid   = $x->id;
+            $Session-&gt;email    = $x->email;
+
+            // Regenerate the session ID
+            $Session-&gt;regenerate();
+        }
+
+        // Yes, the user is valid. Notice that we implicitly trust the user name -- 
+        // if $_SERVER['REMOTE_USER'] is okay and we have SSPI negotiation enabled, 
+        // Windows has already authenticated the user according to domain rules.
+        
+        return true;
+    }
+}</code></li>
+            <li>Change the <tt>provider.auth</tt> value in the <tt>/app/settings.conf</tt> file to <tt>AuthSSOProvider</tt>.</li>
+        </ol>
+        <p>The example above assumes that you may have a database table with a list of users and their
+            email addresses, and so on. Other systems may do lookups into Active Directory itself
+            and query for email, userid and so on.</p>
+        <p>With something like this, you should now have a system that authenticates users 
+            automatically, as soon as they connect to the system.</p>
+        <p>Firefox users may have to adjust the value of the <tt>network.automatic-ntlm-auth.trusted-uris</tt>
+            in the <tt>about:config</tt> display, to include the name of this server, otherwise it won't
+            use SSPI/NTLM authentication.</p>
+        
+    </body>
+</html>

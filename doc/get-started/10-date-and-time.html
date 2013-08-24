@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"/>
+        <title>Get Started with Nifty Framework</title>
+        <link rel="stylesheet" href="style.css"/>
+    </head>
+    <body>
+        <h1>9. Date and time</h1>
+        <p>PHP has in itself classes to work with dates and times, but they are insufficient in providing
+            the rich spectrum of date/time-handling that may be necessary for applications. Common problems
+            with date/time handling that arise are</p>
+        <ul>
+            <li>The ability to handle dates only, apart from times and timezones</li>
+            <li>The ability to handle time values only, to measure time regardless of calendar application</li>
+            <li>To specifically give date and time values, along with detailed timezone data.</li>
+        </ul>
+        <p>For this reason, Nifty expands on PHP's datetime handling with three new classes: <tt>NF_Date</tt>, <tt>NF_Time</tt>
+            and <tt>NF_DateTime</tt>.</p>
+
+        <h2>8.1 NF_Date</h2>
+        <p><tt>NF_Date</tt> is a class that stores days in the format "number of days passed since 1899-12-30" (or if it's
+            1899-12-31?). This is compatible with Excel days and Delphi/Object Pascal dates. This makes it
+            easy to handle date arithmetic, convert to and from other date values, and handle date information
+            without regard to timezones, which is sometimes necessary. For instance, calculating holidays
+            does not pay respect to timezone information - December 24th will always be Christmas Eve, regardless
+            of which timezone you're in.</p>
+
+        <h2>8.2 NF_Time</h2>
+        <p><tt>NF_Time</tt> is a class that handles time only. It stores time internally as seconds, giving it adequate
+            precision to handle most time values. It can be used to calculate both positive and negative time
+            information, and handle time arithmetic. (Joe logs into the system at 6:45am and logs out at
+            9:30am. How many hours did he work?)</p>
+        
+        <h2>8.3 NF_DateTime</h2>
+        <p>The class NF_DateTime is a combination of these two classes and bypasses some of the normal Unix 
+            timestamp handling. This means that it is capable of handling dates from anywhere between Jan 1st, 100 
+            to Dec 31st, 9999.</p>
+
+        <p>More will be written on this subject. Especially when we lock in how the Timezone stuff is to be handled.
+            The classes are, however, already excellently capable, and power a lot of different date/time stuff
+            in professional systems.</p>
+        
+    </body>
+</html>

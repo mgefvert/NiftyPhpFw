@@ -1,0 +1,27 @@
+<h1>[@Login]</h1>
+
+<? if ($this->errmsg): ?>
+    <div class="errmsg"><?= html($this->errmsg) ?></div>
+<? else: ?>
+    <p>[@Please enter your username and password.]</p>
+<? endif ?>
+
+<form method="post">
+
+    <!-- This is the result of NF_FormHelper->inject(). It creates an <input type="hidden"....> thing
+         that must be included in the POST. -->
+    <?= $this->form ?>
+
+    <label class="left-label" for="user-name">[@Username]</label>
+    <input type="text" name="name" id="user-name" placeholder="[@Your username]">
+    <br>
+
+    <label class="left-label" for="user-password">[@Password]</label>
+    <input type="password" name="password" id="user-password" placeholder="[@Password]">
+    <br>
+
+    <br>
+
+    <input type="submit" value="[@Login]">
+
+</form>

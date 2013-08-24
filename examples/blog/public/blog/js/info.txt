@@ -1,0 +1,3 @@
+jQuery my favorite JavaScript framework and is available at http://jquery.com/
+
+nicEdit is a super-tiny little JavaScript Rich Text Editor from http://nicedit.com/

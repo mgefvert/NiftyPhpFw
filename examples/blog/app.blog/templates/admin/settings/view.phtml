@@ -1,0 +1,36 @@
+<h1>[@Edit website settings]</h1>
+
+<script>
+
+    function validate()
+    {
+        var appTitle = $.trim($('#app-title').val());
+        var appURL   = $.trim($('#app-url').val());
+
+        if (appTitle == '' || appURL == '')
+        {
+            alert('[@You must specify all fields before submitting the blog post!]');
+            return false;
+        }
+        else
+            return true;
+    }
+
+</script>
+
+<form method="post">
+    <!-- FormHelper injection -->
+    <?= $this->form ?>
+
+    <label class="left-label" for="app-title">[@Website title]</label>
+    <input type="text" id="app-title" name="title" style="width: 30em" placeholder="[@The name of your blog]" value="<?= html($Application->appTitle) ?>">
+    <br>
+
+    <label class="left-label" for="app-url">[@Website URL]</label>
+    <input type="text" id="app-url" name="url" style="width: 30em" placeholder="[@http://www.somesite.com/]" value="<?= html($Application->appURL) ?>">
+    <br>
+
+    <br>
+
+    <button type="submit" onclick="return validate()"><img src="/img/fatcow/accept.png"> [@Save]</button>
+</form>
