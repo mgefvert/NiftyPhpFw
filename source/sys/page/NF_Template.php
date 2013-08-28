@@ -84,7 +84,7 @@ class NF_Template extends NF_Elements
 
         $f = $this;
         $result = preg_replace_callback('|<@([A-Za-z0-9_]+)>|',    function($matches) use ($f) { return $f->{$matches[1]}; }, $result);
-        $result = preg_replace_callback('|\[@(.+)\]|Us',           function($matches) { return _t($matches[1]); },      $result);
+        $result = preg_replace_callback('|\[@(.*?)\]|s',           function($matches) { return _t($matches[1]); },      $result);
 
         return $this->minify ? NF_Text::minify($result) : $result;
     }
