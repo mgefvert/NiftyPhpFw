@@ -16,10 +16,8 @@ class AdminPage extends NF_AuthPage
 
     protected function init()
     {
-        global $Persistence, $Session, $Response;
-
         parent::init();
 
-        $this->user = $Persistence->load('Data_User', $Session->uid);
+        $this->user = NF::persist()->load('Data_User', NF::session()->uid);
     }
 }

@@ -25,7 +25,7 @@
             {
                 // Make an AJAX call to Index->executeSetLang($id) to set the language.
                 // Then reload the page upon success.
-                $.get('/index/set-lang', {id: lang}, function() {
+                $.get('/blog/index/set-lang', {id: lang}, function() {
                     location.reload();
                 });
             }
@@ -36,7 +36,7 @@
         <div id="wrapper">
             <div id="header">
                 <div id="bkg">
-                    <h1><a href="/"><?= html($Application->appTitle) ?></a></h1>
+                    <h1><a href="/"><?= html(NF::app()->appTitle) ?></a></h1>
                 </div>
             </div>
             <div id="content">
@@ -47,26 +47,26 @@
             </div>
             <div id="footer">
                 <div style="float: right">
-                    <a href="javascript:setLanguage('en')"><img src="/img/silk-flags/us.png"></a>&nbsp;
-                    <a href="javascript:setLanguage('sv')"><img src="/img/silk-flags/se.png"></a>
+                    <a href="javascript:setLanguage('en')"><img src="/blog/img/silk-flags/us.png"></a>&nbsp;
+                    <a href="javascript:setLanguage('sv')"><img src="/blog/img/silk-flags/se.png"></a>
                 </div>
-                <? if ($Session->uid): ?>
+                <? if (NF::session()->uid): ?>
                     <!-- This gets shown if we have an authenticated session -->
                     <p>
-                        [@Logged in as] <a href="/admin/user/view/<?= $Session->uid ?>"><?= html($Session->fullname) ?></a>
+                        [@Logged in as] <?= html(NF::session()->fullname) ?>
                     </p>
                     <ul>
-                        <li><a href="/">[@Main site]</a></li>
-                        <li><a href="/admin/main">[@Admin main menu]</a></li>
-                        <li><a href="/rss"><img src="/img/rss.png" valign="absmiddle"> [@RSS feed]</a></li>
-                        <li><a href="/admin/logout">[@Log out]</a></li>
+                        <li><a href="/blog/">[@Main site]</a></li>
+                        <li><a href="/blog/admin/main">[@Admin main menu]</a></li>
+                        <li><a href="/blog/rss"><img src="/blog/img/rss.png" valign="absmiddle"> [@RSS feed]</a></li>
+                        <li><a href="/blog/admin/logout">[@Log out]</a></li>
                     </ul>
                 <? else: ?>
                     <!-- This gets shown if we have just a normal, unauthenticated session -->
                     <ul>
-                        <li><a href="/">[@Home]</a></li>
-                        <li><a href="/rss"><img src="/img/rss.png" valign="absmiddle"> [@RSS feed]</a></li>
-                        <li><a href="/admin">[@Admin]</a></li>
+                        <li><a href="/blog/">[@Home]</a></li>
+                        <li><a href="/blog/rss"><img src="/blog/img/rss.png" valign="absmiddle"> [@RSS feed]</a></li>
+                        <li><a href="/blog/admin">[@Admin]</a></li>
                     </ul>
                 <? endif ?>
             </div>

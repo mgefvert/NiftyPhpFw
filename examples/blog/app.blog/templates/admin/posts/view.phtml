@@ -1,10 +1,10 @@
 <div style="float: right">
-    <button type="button" onclick="location.href='<?= $this->ref('edit') ?>'"><img src="/img/fatcow/add.png"> [@Write new]</button>
+    <button type="button" onclick="location.href='<?= $this->ref('edit') ?>'"><img src="/blog/img/fatcow/add.png"> [@Write new]</button>
 </div>
 
 <script>
 
-    function remove(id)
+    function doRemove(id)
     {
         if (confirm('[@Are you sure you want to delete the blog post with id] ' + id + '?'))
         {
@@ -45,7 +45,7 @@
             <td><a href="<?= $this->ref('edit', $u->id) ?>"><?= html($u->title) ?></a></td>
             <td class="nobr"><?= $u->created ?></td>
             <td class="nobr"><?= $u->objUser ? html($u->objUser->fullname) : '?' ?></td>
-            <td align="center"><img class="remove" src="/img/fatcow/cross.png" onclick="remove(<?= $u->id ?>)"></td>
+            <td align="center"><img class="remove" src="/blog/img/fatcow/cross.png" onclick="doRemove(<?= $u->id ?>)"></td>
         </tr>
     <? endforeach ?>
 </table>

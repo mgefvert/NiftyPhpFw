@@ -7,10 +7,8 @@ class RSS extends NF_Page
 {
     public function executeView()
     {
-        global $Application, $Response, $Persistence;
-
         // Create a new NF_RSS object with the minimally required info.
-        $rss = new NF_RSS($Application->appTitle, $Application->appURL, $Application->appTitle);
+        $rss = new NF_RSS(NF::app()->appTitle, NF::app()->appURL, NF::app()->appTitle);
 
         // Set the last build date (which we get from the articles published date.)
         $rss->setLastBuildDate(Data_BlogEntry::getMaxPubDate());
@@ -25,7 +23,7 @@ class RSS extends NF_Page
                 $item = new NF_RSS_Item();
                 $item->setTitle(NF_Text::toUnicode($entry->title)); // Everything has to be Unicode.
                 $item->setPubDate($entry->created);
-                $item->setGuid($Application->appURL . 'index/view/' . $entry->id, true); // Should link to the "view item" page.
+                $item->setGuid(NF::app()->appURL . 'index/view/' . $entry->id, true); // Should link to the "view item" page.
                 $item->setContent(NF_Text::toUnicode(strip_tags($entry->text)));
 
                 $rss->addItem($item);
@@ -34,8 +32,8 @@ class RSS extends NF_Page
         // $Response->reset() clears the master template info, so we don't get any
         // further handling. It means that whatever we put into $Response->content
         // is what is sent to the user - byte for byte, no extra handling.
-        $Response->reset();
-        $Response->contentType = 'text/xml';  // Set the content type. Could be "application/rss+xml" but seems to work so-so.
-        $Response->content = $rss->getXml();  // Render the feed to XML.
+        NF::response()->reset();
+        NF::response()->contentType = 'text/xml';  // Set the content type. Could be "application/rss+xml" but seems to work so-so.
+        NF::response()->content = $rss->getXml();  // Render the feed to XML.
     }
 }

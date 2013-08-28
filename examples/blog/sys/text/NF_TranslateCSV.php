@@ -33,7 +33,7 @@ class NF_TranslateCSV
         return $text;
     }
 
-    public function load($locale = null)
+    public function load()
     {
         $this->data = array();
         $this->locales = array();

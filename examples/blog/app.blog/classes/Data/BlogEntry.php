@@ -19,49 +19,25 @@ NF_Persistence::mapRelationM1('Data_BlogEntry', 'Data_User', 'user', 'id', 'objU
  */
 class Data_BlogEntry
 {
-    public $id;
-    public $created;
-    public $title;
-    public $text;
-    public $user;
-
-    /**
-     * Whenever an object is loaded, transform the "created" field into
-     * a NF_DateTime value instead. Makes things easier to handle - plus
-     * that we can convert it easily between timezones.
-     *
-     * @todo Timezones don't really work all that well yet... :(
-     */
-    public function loaded()
-    {
-        $this->created = new NF_DateTime($this->created);
-        $this->created->setTZ('UTC');
-    }
-
-    /**
-     * Persist is called before saving an object to database.
-     */
-    public function persist()
-    {
-        $this->created->adjustTZ('UTC');
-    }
+    /** @persist-type int          */ public $id;
+    /** @persist-type datetime-utc */ public $created;
+    /** @persist-type string       */ public $title;
+    /** @persist-type string       */ public $text;
+    /** @persist-type int          */ public $user;
 
     /**
      * getMaxPubDate() fetches the last publication date of all articles.
      * Used for the RSS feed.
      *
-     * @global NF_Persistence $Persistence
      * @return NF_DateTime
      */
     public static function getMaxPubDate()
     {
-        global $Persistence;
-
-        $date = $Persistence->queryScalar(__CLASS__, 'select max([created]) from [:Data_BlogEntry]');
+        $date = NF::persist()->queryScalar(__CLASS__, 'select max([created]) from [:Data_BlogEntry]');
         if ($date)
         {
-            $date = new NF_DateTime($date);
-            $date->setTZ('UTC');
+            $date = new NF_DateTime($date, NF_TimeZone::utc());
+            $date->setTimezone(NF_TimeZone::local());
         }
 
         return $date;
@@ -74,7 +50,6 @@ class Data_BlogEntry
      * but since we don't declare that variable in the class, NF_Persistence
      * won't try to save it - it's a "ghost" variable.
      *
-     * @global NF_Persistence $Persistence
      * @param int $page
      * @param int $pageCount
      * @param bool $includeText
@@ -82,8 +57,6 @@ class Data_BlogEntry
      */
     public static function loadEntries($page, $pageCount, $includeText)
     {
-        global $Persistence;
-
         if ($page < 0)
             $page = 0;
 
@@ -101,7 +74,7 @@ class Data_BlogEntry
             $fields = '[' . implode('], [', array_keys($fields)) . ']';
         }
 
-        return $Persistence->loadByQuery(__CLASS__, "
+        return NF::persist()->loadByQuery(__CLASS__, "
             select $fields,
                 (select count(*) from [:Data_BlogComment] where [entry:Data_BlogComment]=[id]) as comments
             from [:Data_BlogEntry]
@@ -117,6 +90,6 @@ class Data_BlogEntry
      */
     public static function getPostCount()
     {
-        return NF_DB::connect()->queryScalar('select count(*) from blog_entries');
+        return NF::db()->queryScalar('select count(*) from blog_entries');
     }
 }

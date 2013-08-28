@@ -6,12 +6,14 @@ the application would reside in /app. Take a look at the public/blog/index.php f
 to see how the app is selected.
 
 Copy the /sys code from the source directory, to make sure you have the
-latest files. I might be lazy. 
+latest files. I might be lazy.
 
 /public is the web server root with a few images, css files and so on.
 
 You'll have to create a MySQL database too and run mysql-tables.sql in it to create the tables
 required for the app. Edit the settings in /app.blog/settings.conf to suit your particular needs.
+
+Login to the adminstration pages with username "admin" and password "admin".
 
 Regards,
 Mats Gefvert

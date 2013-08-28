@@ -18,40 +18,27 @@ NF_Persistence::mapRelationM1('Data_BlogComment', 'Data_BlogEntry', 'entry', 'id
  */
 class Data_BlogComment
 {
-    public $id;
-    public $entry;
-    public $created;
-    public $ip;
-    public $text;
-    public $signed;
-    public $email;
-
-    public function loaded()
-    {
-        $this->created = new NF_DateTime($this->created);
-        $this->created->setTZ('UTC');
-    }
-
-    public function persist()
-    {
-        $this->created->adjustTZ('UTC');
-    }
+    /** @persist-type int          */ public $id;
+    /** @persist-type int          */ public $entry;
+    /** @persist-type datetime-utc */ public $created;
+    /** @persist-type string       */ public $ip;
+    /** @persist-type string       */ public $text;
+    /** @persist-type string       */ public $signed;
+    /** @persist-type string       */ public $email;
 
     public static function loadComments($page, $pageCount)
     {
-        global $Persistence;
-
         if ($page < 0)
             $page = 0;
 
         $start = $page * $pageCount;
         $limit = $pageCount;
 
-        return $Persistence->loadByWhereClause(__CLASS__, "order by [id] desc limit $start, $limit");
+        return NF::persist()->loadByWhereClause(__CLASS__, "order by [id] desc limit $start, $limit");
     }
 
     public static function getCommentCount()
     {
-        return NF_DB::connect()->queryScalar('select count(*) from blog_comments');
+        return NF::db()->queryScalar('select count(*) from blog_comments');
     }
 }

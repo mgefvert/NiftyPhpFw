@@ -26,16 +26,16 @@
     <?= $this->form ?>
 
     <label class="left-label" for="add-comment-name">[@Your name]</label>
-    <input type="text" name="name" id="add-comment-name" style="width: 30em;" placeholder="[@Your name...]" value="<?= html(trim($Request->name)) ?>">
+    <input type="text" name="name" id="add-comment-name" style="width: 30em;" placeholder="[@Your name...]" value="<?= html(trim(NF::request()->name)) ?>">
     <br>
 
     <label class="left-label" for="add-comment-email">[@Your email address]</label>
-    <input type="text" name="email" id="add-comment-email" style="width: 30em;" placeholder="[@name@company.com]" value="<?= html(trim($Request->email)) ?>">
+    <input type="text" name="email" id="add-comment-email" style="width: 30em;" placeholder="[@name@company.com]" value="<?= html(trim(NF::request()->email)) ?>">
     <br>
 
     <br>
     <label for="add-comment-text">[@Comment]</label><br>
-    <textarea name="text" id="add-comment-text" rows="10" style="width: 40em;" placeholder="[@What did you think of my blogpost?]"><?= html(trim($Request->text)) ?></textarea>
+    <textarea name="text" id="add-comment-text" rows="10" style="width: 40em;" placeholder="[@What did you think of my blogpost?]"><?= html(trim(NF::request()->text)) ?></textarea>
     <br>
 
     <input type="submit" value="[@Add comment]">

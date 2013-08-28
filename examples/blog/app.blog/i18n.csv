@@ -17,6 +17,7 @@ Blog entry;Bloggpost
 Blog posts;Bloggpost
 Comment;Kommentar
 Comments;Kommentarer
+comments;kommentarer
 e.g. jadams;t.ex. kkarlsson
 e.g. jadams@gmail.com;t.ex. kkarlsson@företaget.se
 e.g. John Adams;t.ex. Kalle Karlsson
@@ -79,3 +80,4 @@ Your email address;Din epostadress
 Your name...;Ditt namn...
 Your name;Ditt namn
 Your username;Ditt användarnamn
+...;...

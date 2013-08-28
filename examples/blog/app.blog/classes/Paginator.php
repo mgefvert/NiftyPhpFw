@@ -11,13 +11,11 @@ class Paginator
 {
     public static function render($itemsPerPage, $maxItems)
     {
-        global $Request;
-
         $pages = (int)(($maxItems + $itemsPerPage - 1) / $itemsPerPage);
 
         if ($pages > 1)
             echo NF_Template::run('misc/paginator.phtml', array(
-                'page'  => $Request->pg,
+                'page'  => NF::request()->pg,
                 'pages' => $pages
             ));
     }

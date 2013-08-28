@@ -13,11 +13,9 @@ class Admin_Main extends AdminPage
 {
     public function executeView()
     {
-        global $Response;
-
-        // We use NF_DB::connect() here instead of going through $Persistence.
+        // We use NF::db() here instead of going through NF::persist().
         // Just for convenience. Sometimes it just becomes too much, right?
-        $statistics = array_shift(NF_DB::connect()->queryAllAsObjects("
+        $statistics = array_shift(NF::db()->queryAsObjects("
             select
                 (select count(*) from blog_entries) as totalEntries,
                 (select count(*) from blog_entries where b_createdUTC >= date_sub(curdate(), interval 1 month)) as monthEntries,
@@ -26,7 +24,7 @@ class Admin_Main extends AdminPage
                 (select count(*) from users) as totalUsers
         "));
 
-        $Response->content = NF_Template::runDefault(null, array(
+        NF::response()->content = NF_Template::runDefault(null, array(
             'statistics' => $statistics
         ));
     }

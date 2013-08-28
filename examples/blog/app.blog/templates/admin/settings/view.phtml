@@ -23,14 +23,14 @@
     <?= $this->form ?>
 
     <label class="left-label" for="app-title">[@Website title]</label>
-    <input type="text" id="app-title" name="title" style="width: 30em" placeholder="[@The name of your blog]" value="<?= html($Application->appTitle) ?>">
+    <input type="text" id="app-title" name="title" style="width: 30em" placeholder="[@The name of your blog]" value="<?= html(NF::app()->appTitle) ?>">
     <br>
 
     <label class="left-label" for="app-url">[@Website URL]</label>
-    <input type="text" id="app-url" name="url" style="width: 30em" placeholder="[@http://www.somesite.com/]" value="<?= html($Application->appURL) ?>">
+    <input type="text" id="app-url" name="url" style="width: 30em" placeholder="[@http://www.somesite.com/]" value="<?= html(NF::app()->appURL) ?>">
     <br>
 
     <br>
 
-    <button type="submit" onclick="return validate()"><img src="/img/fatcow/accept.png"> [@Save]</button>
+    <button type="submit" onclick="return validate()"><img src="/blog/img/fatcow/accept.png"> [@Save]</button>
 </form>

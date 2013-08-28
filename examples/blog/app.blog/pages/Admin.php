@@ -7,41 +7,31 @@
  */
 class Admin extends NF_Page
 {
-    protected $formHelper;
+    protected $iv;
 
     protected function init()
     {
         parent::init();
 
-        $this->formHelper = new NF_FormHelper();
+        $this->iv = new NF_IV();
     }
 
     protected function error($errmsg)
     {
-        global $Response;
-
-        $Response->content = NF_Template::runDefault(null, array(
-            'form'   => $this->formHelper->inject(),
+        NF::response()->content = NF_Template::runDefault(null, array(
+            'form'   => $this->iv->inject(),
             'errmsg' => $errmsg
         ));
     }
 
     /**
      * Check the submitted login info and create a session if it seems ok.
-     *
-     * @global NF_Request $Request
-     * @global NF_Persistence $Persistence
-     * @global NF_Response $Response
-     * @global NF_Session $Session
-     * @return void
      */
     protected function handleLogin()
     {
-        global $Request, $Persistence, $Response, $Session;
-
         // Get the stuff from the URL
-        $username = trim($Request->name);
-        $password = trim($Request->password);
+        $username = trim(NF::request()->name);
+        $password = trim(NF::request()->password);
 
         // Check so we actually have data
         if (!$username || !$password)
@@ -50,7 +40,7 @@ class Admin extends NF_Page
         // Load any matching users from the users table and get the first one.
         // There really shouldn't be more than one user with any given username,
         // but we don't check for that yet.
-        $user = array_shift($Persistence->loadByFields('Data_User', array('username' => $username)));
+        $user = array_shift(NF::persist()->loadByFields('Data_User', array('username' => $username)));
         if (!$user)
             return $this->error(_t('Invalid username or password.'));
 
@@ -61,42 +51,38 @@ class Admin extends NF_Page
             return $this->error(_t('Invalid username or password.'));
 
         // We have a good login/password submission. Create an authenticated session.
-        $Session->regenerate();                  // Always regenerate the session identifier.
-        $Session->uid = $user->id;               // $Session->uid acts as the NF_AuthPage catchword,
+        NF::session()->regenerate();             // Always regenerate the session identifier.
+        NF::session()->uid = $user->id;          // $Session->uid acts as the NF_AuthPage catchword,
                                                  //   to differentiate betweeen authenticated
                                                  //   sessions and normal sessions.
-        $Session->fullname = $user->fullname;    // Set the name too for easier access.
-        $Response->slowRedirect('/admin/main');  // Redirect
+        NF::session()->fullname = $user->fullname;    // Set the name too for easier access.
+        NF::response()->slowRedirect('/blog/admin/main');  // Redirect
     }
 
     public function executeView()
     {
-        global $Session, $Request, $Response;
-
-        if ($Request->isPost())
+        if (NF::request()->isPost())
         {
             $this->handleLogin();
             return;
         }
 
         // Check if we already have an authenticated session (user is logged in).
-        if ($Session->uid == null)
+        if (NF::session()->uid == null)
             // Nope. Show the login form.
-            $Response->content = NF_Template::runDefault(null, array(
-                'form' => $this->formHelper->inject()
+            NF::response ()->content = NF_Template::runDefault(null, array(
+                'form' => $this->iv->inject()
             ));
         else
             // Yep. Redirect to main. By the way - if the user ever calls
             // /admin/main either this way, or directly on the URL, without
             // being authenticated - it will throw a 304 Access Denied error.
-            $Response->redirect('/admin/main');
+            NF::response()->redirect('/blog/admin/main');
     }
 
     public function executeLogout()
     {
-        global $Session, $Response;
-
-        $Session->end();
-        $Response->slowRedirect('/');
+        NF::session()->end();
+        NF::response()->slowRedirect('/');
     }
 }

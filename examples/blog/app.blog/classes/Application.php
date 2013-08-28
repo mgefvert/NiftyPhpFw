@@ -7,7 +7,7 @@
  * What we do here is simply just to load the settings for the blog, such as
  * the blog title and URL. It is also saved in the cache for speedy access.
  */
-class Application
+class Application extends NF_ApplicationBase
 {
     public $appSettings = array();
     public $appTitle;
@@ -15,14 +15,14 @@ class Application
 
     public function init()
     {
-        $value = NF_Cache::get('appsettings');
+        $value = NF::cache()->get('appsettings');
 
         if ($value)
             $this->appSettings = unserialize($value);
         else
         {
             $this->appSettings = Data_BlogSetting::loadSettingsArray();
-            NF_Cache::set('appsettings', serialize($this->appSettings));
+            NF::cache()->set('appsettings', serialize($this->appSettings));
         }
 
         $this->appTitle = a($this->appSettings, 'title', 'A Blog');
@@ -31,6 +31,6 @@ class Application
 
     public function finish()
     {
-        NF_Cache::process();
+        NF::cache()->process();
     }
 }

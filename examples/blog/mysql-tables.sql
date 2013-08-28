@@ -119,6 +119,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
+-- user "admin" and password "admin"
 INSERT INTO `users` VALUES (1,'admin','Administrator','admin@localhost','$1$H}drKZ]A$px9E7Ed9iov4YNYCDlslw0');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;

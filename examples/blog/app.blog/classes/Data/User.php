@@ -14,9 +14,9 @@ NF_Persistence::mapFields('Data_User', array(
  */
 class Data_User
 {
-    public $id;
-    public $username;
-    public $fullname;
-    public $email;
-    public $password;   // Always encrypted
+    /** @persist-type int    */ public $id;
+    /** @persist-type string */ public $username;
+    /** @persist-type string */ public $fullname;
+    /** @persist-type string */ public $email;
+    /** @persist-type string */ public $password;   // Always encrypted
 }

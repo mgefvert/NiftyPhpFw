@@ -1,6 +1,6 @@
 <script>
 
-    function remove(id)
+    function doRemove(id)
     {
         if (confirm('[@Are you sure you want to delete the comment with id] ' + id + '?'))
         {
@@ -39,7 +39,7 @@
             <td><?= html($u->email) ?></td>
             <td><?= html($u->ip) ?></td>
             <td><?= $u->objEntry ? html($u->objEntry->title) : '?' ?></td>
-            <td align="center"><img class="remove" src="/img/fatcow/cross.png" onclick="remove(<?= $u->id ?>)"></td>
+            <td align="center"><img class="remove" src="/blog/img/fatcow/cross.png" onclick="doRemove(<?= $u->id ?>)"></td>
         </tr>
         <tr>
             <td></td>

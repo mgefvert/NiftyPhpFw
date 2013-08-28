@@ -7,30 +7,28 @@ class Admin_Settings extends AdminPage
 {
     public function executeView()
     {
-        global $Response, $Request;
+        $iv = new NF_IV();
 
-        $formHelper = new NF_FormHelper();
-
-        if ($Request->isGet())
+        if (NF::request()->isGet())
         {
             // Don't really need to load the settings ... they're already
             // loaded by $Application.
-            $Response->content = NF_Template::runDefault(null, array(
-                'form' => $formHelper->inject()
+            NF::response()->content = NF_Template::runDefault(null, array(
+                'form' => $iv->inject()
             ));
         }
-        else if ($Request->isPost())
+        else if (NF::request()->isPost())
         {
             // Save the settings.
-            Data_BlogSetting::saveSetting('title', trim($Request->title));
-            Data_BlogSetting::saveSetting('url', trim($Request->url));
+            Data_BlogSetting::saveSetting('title', trim(NF::request()->title));
+            Data_BlogSetting::saveSetting('url', trim(NF::request()->url));
 
             // Since the settings are cached by $Application in the site cache,
             // we have to clear the cache to make them visible.
-            NF_Cache::clear();
+            NF::cache()->clear();
 
             // Redirect "slowly" (not a 301 status) to the main page again.
-            $Response->slowRedirect('/admin/main');
+            NF::response()->slowRedirect('/blog/admin/main');
         }
     }
 }

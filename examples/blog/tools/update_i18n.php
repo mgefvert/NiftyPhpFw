@@ -6,12 +6,15 @@
 $strings = array();
 $i18n    = array();
 
-function load_i18n()
+function load_i18n($fn)
 {
     global $i18n;
 
-    if (($fp = fopen('../app/i18n.csv', 'r')) == false)
-        die('No CSV');
+    if (($fp = fopen($fn, 'r')) == false)
+    {
+        echo "Can't open file $fn\r\n";
+        return;
+    }
 
     fgetcsv($fp, 0, ';');
     fgetcsv($fp, 0, ';');
@@ -26,10 +29,8 @@ function load_i18n()
     fclose($fp);
 }
 
-function save_i18n(array $add)
+function save_i18n($fn, array $add)
 {
-    $fn = '../app/i18n.csv';
-
     $text = file_get_contents($fn);
     $text .= "\r\n\r\n" . implode("\r\n", $add);
     file_put_contents($fn, $text);
@@ -39,7 +40,6 @@ function parseFile($file)
 {
     global $strings;
 
-    echo $file, "\r\n";
     $text = file_get_contents($file);
 
     if (preg_match_all('/_t\([\'"](.*)[\'"]\)/U', $text, $matches))
@@ -65,21 +65,26 @@ function parseFolder($folder)
             parseFolder($f);
 }
 
-load_i18n();
-parseFolder('../app');
-echo "\r\n";
+$paths = glob('../app*', GLOB_ONLYDIR);
 
-$add = array();
-foreach($strings as $s)
-    if (!isset($i18n[$s]))
-        $add[$s] = 1;
-$add = array_keys($add);
-
-if (!empty($add))
+foreach($paths as $path)
 {
-    sort($add);
-    save_i18n($add);
-    echo " - " . count($add) . " new string(s) found.\r\n";
+    load_i18n($path . '/i18n.csv');
+    parseFolder($path);
+    echo "\r\n";
+
+    $add = array();
+    foreach($strings as $s)
+        if (!isset($i18n[$s]))
+            $add[$s] = 1;
+    $add = array_keys($add);
+
+    if (!empty($add))
+    {
+        sort($add);
+        save_i18n($path . '/i18n.csv', $add);
+        echo $path . ": " . count($add) . " new string(s) found.\r\n";
+    }
+    else
+        echo $path . ": No new strings found.\r\n";
 }
-else
-    echo "No new strings found.\r\n";

@@ -16,7 +16,7 @@ class Index extends NF_Page
      *
      * @var NF_FormHelper
      */
-    protected $formHelper;
+    protected $iv;
 
     /**
      * init() gets called before any execute... function is called.
@@ -28,21 +28,19 @@ class Index extends NF_Page
         // Instantiating formHelper here means that every POST call to this
         // page must have formHelper data with it, otherwise we never even
         // reach the execute... function.
-        $this->formHelper = new NF_FormHelper();
+        $this->iv = new NF_IV();
     }
 
     // The main executeView() call. The default call. It takes a $pg parameter
     // for pagination on the front page.
     public function executeView($pg = 0)
     {
-        global $Response;
-
         // Load the blog entries.
         $entries = Data_BlogEntry::loadEntries($pg, 10, true);
 
         // Send the blog entries through the index/view.phtml page, which in
         // turn gets send to the main.phtml page when we return from this call.
-        $Response->content = NF_Template::runDefault(null, array(
+        NF::response()->content = NF_Template::runDefault(null, array(
             'entries' => $entries
         ));
     }
@@ -53,38 +51,36 @@ class Index extends NF_Page
     // sure that we have valid session keys.
     public function executeItem($id)
     {
-        global $Request, $Response, $Persistence;
-
-        if ($Request->isGet())
+        if (NF::request()->isGet())
         {
             // View the entry. Try to load it - if we don't find it, we give
             // a 404 error. This is nicer than using $Persistence->load, and
             // failing with a database error if we don't find the entry.
-            $entry = $Persistence->tryLoad('Data_BlogEntry', $id);
+            $entry = NF::persist()->tryLoad('Data_BlogEntry', $id);
             if (!$entry)
                 throw new NF_EPageNotFound();
 
             // Load the related comments. They become available as $entry->objComments,
             // since that's how it was defined in NF_Persistence::mapRelation1M for
             // Data_BlogEntry ($entry is a Data_BlogEntry).
-            $Persistence->loadRelated($entry, 'objComments');
+            NF::persist()->loadRelated($entry, 'objComments');
 
             // Parse the entry, also inject the FormHelper data that allows
             // us to validate POSTs for session consistency. (Might cut down on spam?)
-            $Response->content = NF_Template::runDefault(null, array(
+            NF::response()->content = NF_Template::runDefault(null, array(
                 'entry' => $entry,
-                'form'  => $this->formHelper->inject()
+                'form'  => $this->iv->inject()
             ));
         }
-        else if ($Request->isPost())
+        else if (NF::request()->isPost())
         {
             // A comment was posted from the form. Get the data.
             // We could have included $name, $email and $text in the
             // executeItem() parameter list, of course, but that would
             // affect the GET call, too, so this is more intuitive.
-            $name = trim($Request->name);
-            $email = trim($Request->email);
-            $text = trim($Request->text);
+            $name = trim(NF::request()->name);
+            $email = trim(NF::request()->email);
+            $text = trim(NF::request()->text);
 
             if ($name && $email && $text)
             {
@@ -100,7 +96,7 @@ class Index extends NF_Page
                 // Insert the comment into the database. Since Persistence knows
                 // the type of the object (Data_BlogComment), it also knows
                 // which table to put it in.
-                $Persistence->insert($comment);
+                NF::persist()->insert($comment);
 
                 // slowDirect generates a little special page with META redirect
                 // and JavaScript redirect, instead of a 301 Redirection call.
@@ -111,20 +107,20 @@ class Index extends NF_Page
                 // Since we give no specification (''), the current page is
                 // basically reloaded - but with a GET, which triggers the
                 // view item code.
-                $Response->slowRedirect('');
+                NF::response()->slowRedirect('');
             }
             else
             {
                 // Something failed. Just basically give the "view item" stuff
                 // back with an error message.
-                $entry = $Persistence->load('Data_BlogEntry', $id);
-                $Persistence->loadRelated($entry, 'objComments');
+                $entry = NF::persist()->load('Data_BlogEntry', $id);
+                NF::persist()->loadRelated($entry, 'objComments');
 
                 // _t('') means "translate". It depends on the browser's locale
                 // and if we made any set-lang calls.
-                $Response->content = NF_Template::runDefault(null, array(
+                NF::response()->content = NF_Template::runDefault(null, array(
                     'entry' => $entry,
-                    'form'  => $this->formHelper->inject(),
+                    'form'  => $this->iv->inject(),
                     'errmsg' => _t('One or more of the fields below were left blank!')
                 ));
             }
@@ -144,6 +140,14 @@ class Index extends NF_Page
      */
     public function executeSetLang($id)
     {
-        NF_Translate_CSV::getInstance()->setLocale($id);
+        NF::translate()->setLocale($id);
+    }
+
+    /**
+     * Just a small test page that allows us to test various things quickly.
+     */
+    public function executeTest()
+    {
+        NF::response()->content = NF_Template::run('test.phtml');
     }
 }
