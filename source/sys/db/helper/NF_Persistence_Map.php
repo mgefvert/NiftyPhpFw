@@ -136,7 +136,7 @@ class NF_Persistence_Map
                         list(, $k, $v) = $match;
 
                         if (eqcase($k, 'persist-type'))
-                            $fields[$v][] = strtolower($prop->name);
+                            $fields[$v][] = $prop->name;
 
                         if (eqcase($k, 'persist-map'))
                             $map[$prop->name] = $v;

@@ -56,7 +56,7 @@ class NF_Date
     protected function checkNullDate()
     {
         if (!$this->dateTime)
-            throw new EDateError('Cannot modify a NULL date');
+            throw new NF_EDateError('Cannot modify a NULL date');
     }
 
 

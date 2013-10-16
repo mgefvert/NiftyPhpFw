@@ -20,9 +20,9 @@ class NF_AuthPage extends NF_PageBase
      *
      *  @return void
      */
-    protected function throwForbidden()
+    protected function throwForbidden($cmd = null, $elements = null)
     {
-        throw new NF_EForbidden();
+        throw new NF_EAuthenticationFailed();
     }
 
     /**
@@ -49,6 +49,6 @@ class NF_AuthPage extends NF_PageBase
         if ($this->verifyAuthentication())
             parent::execute($cmd, $elements);
         else
-            $this->throwForbidden();
+            $this->throwForbidden($cmd, $elements);
     }
 }
