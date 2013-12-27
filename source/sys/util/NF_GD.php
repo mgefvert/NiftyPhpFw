@@ -254,39 +254,39 @@ class NF_GD
      * Make a thumbnail of size dimension x dimension. Will ensure that the
      * picture is properly cropped and centered
      *
-     * @param int $dimension
+     * @param int $dimX
      */
-    public function thumbnail($dimension)
+    public function thumbnail($dimX, $dimY)
     {
         $x = $this->width();
         $y = $this->height();
 
         if ($x > $y)
         {
-            $x *= $dimension/$y;
-            $y = $dimension;
+            $x *= $dimY/$y;
+            $y = $dimY;
         }
         else
         {
-            $y *= $dimension/$x;
-            $x = $dimension;
+            $y *= $dimX/$x;
+            $x = $dimX;
         }
 
         $this->resample(round($x), round($y));
 
-        if ($x > $dimension)
+        if ($x > $dimX)
         {
-            $trim = floor(($x - $dimension)/2);
+            $trim = floor(($x - $dimX)/2);
             $this->crop($trim, 0, $trim, 0);
         }
         else
         {
-            $trim = floor(($y - $dimension)/2);
+            $trim = floor(($y - $dimY)/2);
             $this->crop(0, $trim, 0, $trim);
         }
 
-        if ($this->height() > $dimension || $this->width() > $dimension)
-            $this->crop(0, 0, $this->width() - $dimension, $this->height() - $dimension);
+        if ($this->height() > $dimY || $this->width() > $dimX)
+            $this->crop(0, 0, $this->width() - $dimX, $this->height() - $dimY);
     }
 
     /**

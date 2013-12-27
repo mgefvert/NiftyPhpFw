@@ -11,8 +11,8 @@ class NF_CronJob_Weekly implements NF_CronJob_Aspect
     {
         // Time it so it always occurs on Sundays
         $now = NF_DateTime::now();
-        $now_week = (int)(($now->date - 1) / 7);
-        $last_week = (int)(($last->date - 1) / 7);
+        $now_week = (int)(($now->getDoubleDate() - 1) / 7);
+        $last_week = (int)(($last->getDoubleDate() - 1) / 7);
 
         return $last_week < $now_week;
     }
@@ -24,7 +24,7 @@ class NF_CronJob_Daily implements NF_CronJob_Aspect
     {
         $now = NF_DateTime::now();
 
-        return $last->date < $now->date;
+        return $last->getDoubleDate() < $now->getDoubleDate();
     }
 }
 
@@ -33,8 +33,8 @@ class NF_CronJob_Hourly implements NF_CronJob_Aspect
     public function timeToRun(NF_DateTime $last)
     {
         $now = NF_DateTime::now();
-        $now_hours = ($now->date * 24) + ($now->getHour());
-        $last_hours = ($last->date * 24) + ($last->getHour());
+        $now_hours = ($now->getDoubleDate() * 24) + ($now->getHour());
+        $last_hours = ($last->getDoubleDate() * 24) + ($last->getHour());
 
         return $last_hours < $now_hours;
     }

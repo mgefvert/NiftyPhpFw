@@ -27,7 +27,7 @@ class NF
 
     /**
      * Returns the global authentication object
-     * @return NF_ApplicationBase
+     * @return Application
      */
     public static function app()
     {
@@ -155,6 +155,8 @@ class NF
      */
     public static function persist($db = null)
     {
+        self::$persistence = array_filter(self::$persistence, function($p) { return $p->database->isOpen(); });
+
         if (!($db instanceof NF_IDatabase))
             $db = NF::db($db);
         $key = $db->connection->getKey();

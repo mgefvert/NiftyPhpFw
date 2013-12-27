@@ -40,7 +40,7 @@ class NF_Persistence
      * @param string $classname
      * @return array
      */
-    protected function setup(&$classname, $translator = false)
+    protected function setup($classname, $translator = false)
     {
         $classname = NF_Filter::name($classname);
         NF_Persistence_Map::getMap($classname, $table, $idfield, $fieldmap);
@@ -195,8 +195,7 @@ class NF_Persistence
     {
         list(, , $idfields) = $this->setup($classname);
 
-        return array_shift($this->loadByWhereClause($classname,
-            'where ' . $this->sqlgen->buildWhereClause($classname, $idfields, $id)));
+        return current($this->loadByWhereClause($classname, 'where ' . $this->sqlgen->buildWhereClause($classname, $idfields, $id)));
     }
 
     /**

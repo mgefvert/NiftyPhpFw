@@ -107,12 +107,12 @@ class NF_Elements
     /**
      *  Does a certain key exist in the elements array?
      *
-     *  @param string $key Key name
+     *  @param string $name Key name
      *  @return bool True if the key exists.
      */
-    public function exists($key)
+    public function exists($name)
     {
         $name = $this->processName($name);
-        return isset($this->_elem[$key]);
+        return isset($this->_elem[$name]);
     }
 }

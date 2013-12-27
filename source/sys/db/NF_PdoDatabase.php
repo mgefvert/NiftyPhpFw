@@ -33,6 +33,21 @@ class NF_PdoDatabase implements NF_IDatabase
     }
 
     /**
+     * Verify that the connection is active.
+     *
+     * @throws NF_Exception
+     */
+    protected function assertOpen()
+    {
+        if ($this->pdo === null)
+            throw new NF_Exception("PDO is null");
+
+
+        if (!$this->pdo || !($this->pdo instanceof PDO))
+            throw new NF_Exception("Operation attempted on closed database connection");
+    }
+
+    /**
      *  Connect to the database with these parameters
      *
      *  @param NF_ConnectionInfo $connection Connection parameter object
@@ -83,6 +98,7 @@ class NF_PdoDatabase implements NF_IDatabase
      */
     public function query($query, $params = null)
     {
+        $this->assertOpen();
         $this->logQuery($query, $params);
         return new NF_PdoResult($this->pdo, $query, $params);
     }
@@ -183,10 +199,8 @@ class NF_PdoDatabase implements NF_IDatabase
      */
     public function execute($query, $params = null)
     {
+        $this->assertOpen();
         $this->logQuery($query, $params);
-
-        if (!is_object($this->pdo))
-            throw new NF_EAssertionFailed('$this->pdo is not a PDO resource: ' . print_r($this->pdo, true));
 
         if ($params === null)
             return $this->pdo->exec($query);
@@ -222,6 +236,7 @@ class NF_PdoDatabase implements NF_IDatabase
      */
     public function quote($str)
     {
+        $this->assertOpen();
         return $this->pdo->quote($str);
     }
 
@@ -241,21 +256,25 @@ class NF_PdoDatabase implements NF_IDatabase
      */
     public function lastInsertId()
     {
+        $this->assertOpen();
         return $this->pdo->lastInsertId();
     }
 
     public function begin()
     {
+        $this->assertOpen();
         $this->pdo->beginTransaction();
     }
 
     public function commit()
     {
+        $this->assertOpen();
         $this->pdo->commit();
     }
 
     public function rollback()
     {
+        $this->assertOpen();
         $this->pdo->rollBack();
     }
 

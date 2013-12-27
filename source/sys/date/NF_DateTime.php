@@ -340,6 +340,43 @@ class NF_DateTime
     }
 
     /**
+     * Return the date and time expressed as an Excel-style (Delphi-style)
+     * float value. The integer part is the number of days since 1899-12-31 and
+     * the fraction part is the time of the day.
+     *
+     * @return int
+     */
+    public function getDoubleDate()
+    {
+        $daysPerMonth = array(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
+        if ($this->isLeapYear())
+            $daysPerMonth[1]++;
+
+        list($year, $month, $day) = array_values($this->getDateTime());
+
+        for ($i=1; $i<$month; $i++)
+            $day += $daysPerMonth[$i - 1];
+
+        $year--;
+        return (int)($year * 365 + floor($year / 4) - floor($year / 100) +
+               floor($year / 400) + $day - 693594);
+    }
+
+    /**
+     * Return the date and time expressed as an Excel-style (Delphi-style)
+     * float value. The integer part is the number of days since 1899-12-31 and
+     * the fraction part is the time of the day.
+     *
+     * @return float
+     */
+    public function getDoubleTime()
+    {
+        list(, , , $hour, $minute, $second) = array_values($this->getDateTime());
+
+        return ($hour * 3600 + $minute * 60 + $second) / 86400;
+    }
+
+    /**
      * Return the hour.
      *
      * @return int

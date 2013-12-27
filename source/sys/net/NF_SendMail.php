@@ -55,7 +55,7 @@ class NF_SendMail
 
     public function setFrom($from)
     {
-        $this->from = array_shift($this->parseEmails($from, false));
+        $this->from = current($this->parseEmails($from, false));
     }
 
     public function setSubject($subject)

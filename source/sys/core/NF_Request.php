@@ -43,7 +43,7 @@ class NF_Request extends NF_Elements
 
         $this->_context = array();
 
-        $this->_path = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
+        $this->_path = a($_SERVER, 'REDIRECT_URL', a($_SERVER, 'REQUEST_URI'));
         if (($n = strpos($this->_path, '?')) !== false)
             $this->_path = substr($this->_path, 0, $n);
 

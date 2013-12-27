@@ -79,8 +79,6 @@ class NF_Persistence_SQL
      */
     public function buildIdList($objects, $field, $discriminators = null)
     {
-        $numeric = true;
-
         if (!empty($discriminators))
             $objects = array_filter($objects, function($item) use ($discriminators) {
                 foreach($discriminators as $d)

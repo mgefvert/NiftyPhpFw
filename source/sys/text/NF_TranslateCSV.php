@@ -128,7 +128,7 @@ class NF_TranslateCSV
 
         foreach ($acceptLanguage as $l)
         {
-            $l = strtolower(array_shift(explode(';', $l)));
+            $l = strtolower(current(explode(';', $l)));
             if (($n = $this->findLocaleIndex($l)) !== null)
             {
                 NF::session()->__locale = $n;

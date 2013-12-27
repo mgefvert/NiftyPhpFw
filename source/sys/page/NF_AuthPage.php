@@ -22,7 +22,7 @@ class NF_AuthPage extends NF_PageBase
      */
     protected function throwForbidden($cmd = null, $elements = null)
     {
-        throw new NF_EAuthenticationFailed();
+        throw new NF_EAuthorizationFailed();
     }
 
     /**

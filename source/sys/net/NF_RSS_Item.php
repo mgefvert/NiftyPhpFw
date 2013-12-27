@@ -33,68 +33,68 @@ class NF_RSS_Item
 
     // --- Generate and parse content items ---
 
-    public static function fromDomItem($item)
+    public static function fromDomItem(NF_RSS $rss, $item)
     {
         $result = new NF_RSS_Item();
 
-        $result->title            = NF_RSS::xmlGetChildData($item, 'title');
-        $result->link             = NF_RSS::xmlGetChildData($item, 'link');
-        $result->description      = html_entity_decode(NF_RSS::xmlGetChildData($item, 'description'), ENT_QUOTES);
-        $result->author           = NF_RSS::xmlGetChildData($item, 'author');
-        $result->category         = NF_RSS::xmlGetChildData($item, 'category');
-        $result->category_domain  = NF_RSS::xmlGetChildAttribute($item, 'category', 'domain');
-        $result->comments         = NF_RSS::xmlGetChildData($item, 'comments');
-        $result->enclosure_url    = NF_RSS::xmlGetChildAttribute($item, 'enclosure', 'url');
-        $result->enclosure_length = NF_RSS::xmlGetChildAttribute($item, 'enclosure', 'length');
-        $result->enclosure_type   = NF_RSS::xmlGetChildAttribute($item, 'enclosure', 'type');
-        $result->guid             = NF_RSS::xmlGetChildData($item, 'guid');
-        $result->guid_isPermaLink = NF_RSS::xmlGetChildAttribute($item, 'enclosure', 'isPermaLink');
-        $result->source           = NF_RSS::xmlGetChildData($item, 'source');
-        $result->source_url       = NF_RSS::xmlGetChildAttribute($item, 'source', 'url');
+        $result->title            = $rss->xmlGetChildData($item, 'title');
+        $result->link             = $rss->xmlGetChildData($item, 'link');
+        $result->description      = html_entity_decode($rss->xmlGetChildData($item, 'description'), ENT_QUOTES);
+        $result->author           = $rss->xmlGetChildData($item, 'author');
+        $result->category         = $rss->xmlGetChildData($item, 'category');
+        $result->category_domain  = $rss->xmlGetChildAttribute($item, 'category', 'domain');
+        $result->comments         = $rss->xmlGetChildData($item, 'comments');
+        $result->enclosure_url    = $rss->xmlGetChildAttribute($item, 'enclosure', 'url');
+        $result->enclosure_length = $rss->xmlGetChildAttribute($item, 'enclosure', 'length');
+        $result->enclosure_type   = $rss->xmlGetChildAttribute($item, 'enclosure', 'type');
+        $result->guid             = $rss->xmlGetChildData($item, 'guid');
+        $result->guid_isPermaLink = $rss->xmlGetChildAttribute($item, 'enclosure', 'isPermaLink');
+        $result->source           = $rss->xmlGetChildData($item, 'source');
+        $result->source_url       = $rss->xmlGetChildAttribute($item, 'source', 'url');
 
-        $result->content          = NF_RSS::xmlGetChildData($item, 'content:encoded');
+        $result->content          = $rss->xmlGetChildData($item, 'content:encoded');
 
-        if (($data = NF_RSS::xmlGetChildData($item, 'pubDate')) != '')
+        if (($data = $rss->xmlGetChildData($item, 'pubDate')) != '')
             $result->setPubDate($data);
 
         return $result;
     }
 
-    public function buildXml($doc, $channel)
+    public function buildXml($rss, $doc, $channel)
     {
         if ($this->title == '' && $this->description == '')
             throw new Exception('RSS: Either title or description must contain a value');
 
-        $item = NF_RSS::xmlCreateChild($doc, $channel, 'item');
+        $item = $rss->xmlCreateChild($doc, $channel, 'item');
 
         if ($this->title != '')
-            NF_RSS::xmlCreateChild($doc, $item, 'title', $this->title);
+            $rss->xmlCreateChild($doc, $item, 'title', $this->title);
         if ($this->link != '')
-            NF_RSS::xmlCreateChild($doc, $item, 'link', $this->link);
+            $rss->xmlCreateChild($doc, $item, 'link', $this->link);
         if ($this->description != '')
-            NF_RSS::xmlCreateChildCDATA($doc, $item, 'description', $this->description);
+            $rss->xmlCreateChildCDATA($doc, $item, 'description', $this->description);
         if ($this->author != '')
-            NF_RSS::xmlCreateChild($doc, $item, 'author', $this->author);
+            $rss->xmlCreateChild($doc, $item, 'author', $this->author);
         if ($this->category != '')
-            NF_RSS::xmlCreateChild($doc, $item, 'category', $this->category, array(
+            $rss->xmlCreateChild($doc, $item, 'category', $this->category, array(
                 'domain' => $this->category_domain
             ));
         if ($this->comments != '')
-            NF_RSS::xmlCreateChild($doc, $item, 'comments', $this->comments);
+            $rss->xmlCreateChild($doc, $item, 'comments', $this->comments);
         if ($this->enclosure_url != '')
-            NF_RSS::xmlCreateChild($doc, $item, 'enclosure', '', array(
+            $rss->xmlCreateChild($doc, $item, 'enclosure', '', array(
                 'url'    => $this->enclosure_url,
                 'length' => $this->enclosure_length,
                 'type'   => $this->enclosure_type
             ));
         if ($this->guid != '')
-            NF_RSS::xmlCreateChild($doc, $item, 'guid', $this->guid, array(
+            $rss->xmlCreateChild($doc, $item, 'guid', $this->guid, array(
                 'isPermaLink' => $this->guid_isPermaLink ? 'true' : 'false'
             ));
         if ($this->pubDate != '')
-            NF_RSS::xmlCreateChild($doc, $item, 'pubDate', $this->pubDate->format('r'));
+            $rss->xmlCreateChild($doc, $item, 'pubDate', $this->pubDate->format('r'));
         if ($this->source != '')
-            NF_RSS::xmlCreateChild($doc, $item, 'source', $this->source, array(
+            $rss->xmlCreateChild($doc, $item, 'source', $this->source, array(
                 'url' => $this->source_url
             ));
 
@@ -103,7 +103,7 @@ class NF_RSS_Item
             if ($channel->parentNode->hasAttribute('xmlns:content') == false)
                 $channel->parentNode->setAttribute('xmlns:content', 'http://purl.org/rss/1.0/modules/content/');
 
-            NF_RSS::xmlCreateChild($doc, $item, 'content:encoded', $this->content);
+            $rss->xmlCreateChild($doc, $item, 'content:encoded', $this->content);
         }
     }
 
@@ -179,7 +179,7 @@ class NF_RSS_Item
         else if (is_object($date) && $date instanceof NF_DateTime)
             $this->pubDate = clone $date;
         else
-            $this->pubDate = NF_DateTime::fromString($date);
+            $this->pubDate = new NF_DateTime($date);
     }
 
     public function setSource($url, $title)

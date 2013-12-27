@@ -18,6 +18,7 @@ require_once __DIR__ . '/core/NF_Path.php';
 class NF_AutoLoader
 {
     private static $syscache;
+    private static $cache;
 
     public static function buildSysCache()
     {
@@ -27,7 +28,7 @@ class NF_AutoLoader
         foreach(glob(__DIR__ . '/params/P*.php') as $file)
             static::$syscache[str_replace('.php', '', basename($file))] = $file;
 
-        NF_Cache::set('__sys_classes', static::$syscache);
+        self::$cache->set('__sys_classes', static::$syscache);
     }
 
     public static function isNiftyClass($class)
@@ -68,8 +69,13 @@ class NF_AutoLoader
 
     public static function autoload($class)
     {
-        if (NF_Cache::exists('__sys_classes'))
-            static::$syscache = NF_Cache::get('__sys_classes');
+        // We have to instantiate NF_Cache directly, because we can't risk
+        // using NF::cache() when the autoloader isn't initialized yet.
+        if (self::$cache == null)
+            self::$cache = new NF_Cache();
+
+        if (self::$cache->exists('__sys_classes'))
+            static::$syscache = self::$cache->get('__sys_classes');
 
         $result = self::doAutoload($class);
 

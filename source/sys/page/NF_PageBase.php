@@ -105,10 +105,7 @@ class NF_PageBase implements NF_IContext
         for($i=0; $i<strlen($method); $i++)
         {
             $c = $method[$i];
-            if ($c == strtoupper($c))
-                $result .= '-' . strtolower($c);
-            else
-                $result .= $c;
+            $result .= ctype_upper($c) ? '-' . strtolower($c) : $c;
         }
 
         if (strlen($result) > 0 && $result[0] == '-')

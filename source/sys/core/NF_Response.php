@@ -308,7 +308,11 @@ EOF;
             $mimetype = 'application/octet-string';
 
         if ($filename)
+        {
+            // Only a small subset of punctuation is allowed.
+            $filename = preg_replace('/[^a-zA-Z0-9\.\-\_\@\$\(\)]/', '', $filename);
             header("Content-Disposition: attachment; filename={$filename}");
+        }
         header("Content-Type: $mimetype");
         header("Content-Transfer-Encoding: binary");
         header("Content-Length: " . strlen($data));

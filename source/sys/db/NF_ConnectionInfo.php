@@ -35,12 +35,14 @@ class NF_ConnectionInfo
 
     public function getDSN()
     {
+        $charset = $this->charset ? ";charset=" . $this->charset : '';
+
         if (strcasecmp($this->type, 'mysqli') == 0 || strcasecmp($this->type, 'mysql') == 0)
-            return "mysql:host={$this->host};dbname={$this->database};charset={$this->charset}";
+            return "mysql:host={$this->host};dbname={$this->database}" . $charset;
 
         if (strcasecmp($this->type, 'sqlsrv') == 0 || strcasecmp($this->type, 'sqlserver') == 0)
-            return "sqlsrv:Server={$this->host};Database={$this->database};charset={$this->charset}";
+            return "sqlsrv:Server={$this->host};Database={$this->database}" . $charset;
 
-        return "{$this->type}:host={$this->host};dbname={$this->database};charset={$this->charset}";
+        return "{$this->type}:host={$this->host};dbname={$this->database}" . $charset;
     }
 }

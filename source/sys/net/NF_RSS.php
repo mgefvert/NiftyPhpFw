@@ -17,6 +17,9 @@ class NF_RSS
     public $link;
     public $description;
 
+    // If the content is utf8 already - meaning no internal conversion
+    public $utf8 = false;
+
     // Optional fields
     public $language;
     public $copyright;
@@ -72,7 +75,9 @@ class NF_RSS
         return $rss;
     }
 
-    public static function xmlGetChild($element, $node)
+    // Helper methods
+
+    public function xmlGetChild($element, $node)
     {
         $children = $element->childNodes;
         for($i=0; $i<$children->length; $i++)
@@ -82,41 +87,47 @@ class NF_RSS
         return false;
     }
 
-    public static function xmlGetChildData($element, $node)
+    public function xmlGetChildData($element, $node)
     {
-        if (($node = self::xmlGetChild($element, $node)) == false)
+        if (($node = $this->xmlGetChild($element, $node)) == false)
             return '';
 
-        return iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $node->nodeValue);
+        return $this->utf8 ? $node->nodeValue : NF_Text::fromUnicode($node->nodeValue);
     }
 
-    public static function xmlGetChildAttribute($element, $node, $attribute)
+    public function xmlGetChildAttribute($element, $node, $attribute)
     {
-        $node = self::xmlGetChild($element, $node);
+        $node = $this->xmlGetChild($element, $node);
         if ($node == false)
             return false;
 
-        return utf8_decode($node->getAttribute($attribute));
+        $value = $node->getAttribute($attribute);
+        return $this->utf8 ? $value : NF_Text::fromUnicode($value);
     }
 
-    public static function xmlCreateChild($doc, $node, $tag, $value = '', array $attributes = null)
+    public function xmlCreateChild($doc, $node, $tag, $value = '', array $attributes = null)
     {
-        $newNode = $doc->createElement($tag, utf8_encode($value));
+        $newNode = $doc->createElement($tag);
         $node->appendChild($newNode);
+
+        if ($value)
+            $newNode->appendChild(
+                $doc->createTextNode($this->utf8 ? $value : NF_Text::toUnicode($value))
+            );
 
         if ($attributes != null)
             foreach($attributes as $k => $v)
                 if ($v != '')
-                    $newNode->setAttribute($k, utf8_encode($v));
+                    $newNode->setAttribute($k, $this->utf8 ? $v : NF_Text::toUnicode($v));
 
         return $newNode;
     }
 
-    public static function xmlCreateChildCDATA($doc, $node, $tag, $value)
+    public function xmlCreateChildCDATA($doc, $node, $tag, $value)
     {
-        $newNode = self::xmlCreateChild($doc, $node, 'description');
+        $newNode = $this->xmlCreateChild($doc, $node, $tag);
         $newNode->appendChild(
-            $doc->createCDATASection(utf8_encode($value))
+            $doc->createCDATASection($this->utf8 ? $value : NF_Text::toUnicode($value))
         );
 
         return $newNode;
@@ -131,53 +142,53 @@ class NF_RSS
         if ($this->title == '' || $this->link == '' || $this->description == '')
             throw new Exception('RSS: title, link and description must contain a value');
 
-        $rss = self::xmlCreateChild($doc, $doc, 'rss');
+        $rss = $this->xmlCreateChild($doc, $doc, 'rss');
         $rss->setAttribute('version', '2.0');
 
         if ($this->thisUrl != '')
             $rss->setAttribute('xmlns:atom', 'http://www.w3.org/2005/Atom');
 
-        $channel = self::xmlCreateChild($doc, $rss, 'channel');
+        $channel = $this->xmlCreateChild($doc, $rss, 'channel');
 
-        self::xmlCreateChild($doc, $channel, 'title', utf8_encode($this->title));
-        self::xmlCreateChild($doc, $channel, 'link', utf8_encode($this->link));
+        $this->xmlCreateChild($doc, $channel, 'title', $this->utf8 ? $this->title : NF_Text($this->title));
+        $this->xmlCreateChild($doc, $channel, 'link', $this->link);
 
-        $description = self::xmlCreateChild($doc, $channel, 'description');
-        $data = $doc->createCDATASection(utf8_encode($this->description));
+        $description = $this->xmlCreateChild($doc, $channel, 'description');
+        $data = $doc->createCDATASection($this->utf8 ? $this->description : NF_Text::toUnicode($this->description));
         $description->appendChild($data);
 
         if ($this->language != '')
-            self::xmlCreateChild($doc, $channel, 'language', $this->language);
+            $this->xmlCreateChild($doc, $channel, 'language', $this->language);
         if ($this->copyright != '')
-            self::xmlCreateChild($doc, $channel, 'copyright', $this->copyright);
+            $this->xmlCreateChild($doc, $channel, 'copyright', $this->copyright);
         if ($this->managingEditor != '')
-            self::xmlCreateChild($doc, $channel, 'managingEditor', $this->managingEditor);
+            $this->xmlCreateChild($doc, $channel, 'managingEditor', $this->managingEditor);
         if ($this->webMaster != '')
-            self::xmlCreateChild($doc, $channel, 'webMaster', $this->webMaster);
+            $this->xmlCreateChild($doc, $channel, 'webMaster', $this->webMaster);
         if ($this->pubDate != '')
-            self::xmlCreateChild($doc, $channel, 'pubDate', $this->pubDate->format('r'));
+            $this->xmlCreateChild($doc, $channel, 'pubDate', $this->pubDate->format('r'));
         if ($this->lastBuildDate != '')
-            self::xmlCreateChild($doc, $channel, 'lastBuildDate', $this->lastBuildDate->format('r'));
+            $this->xmlCreateChild($doc, $channel, 'lastBuildDate', $this->lastBuildDate->format('r'));
         if ($this->category != '')
-            self::xmlCreateChild($doc, $channel, 'category', $this->category, array(
+            $this->xmlCreateChild($doc, $channel, 'category', $this->category, array(
                 'domain' => $this->category_domain
             ));
         if ($this->generator != '')
-            self::xmlCreateChild($doc, $channel, 'generator', $this->generator);
+            $this->xmlCreateChild($doc, $channel, 'generator', $this->generator);
         if ($this->docs != '')
-            self::xmlCreateChild($doc, $channel, 'docs', $this->docs);
+            $this->xmlCreateChild($doc, $channel, 'docs', $this->docs);
         if ($this->ttl != '')
-            self::xmlCreateChild($doc, $channel, 'ttl', $this->ttl);
+            $this->xmlCreateChild($doc, $channel, 'ttl', $this->ttl);
 
         if ($this->thisUrl != '')
-            self::xmlCreateChild($doc, $channel, 'atom:link', '', array(
+            $this->xmlCreateChild($doc, $channel, 'atom:link', '', array(
                 'href' => $this->thisUrl,
                 'rel'  => 'self',
                 'type' => 'application/rss+xml'
             ));
 
         foreach($this->items as $item)
-            $item->buildXml($doc, $channel);
+            $item->buildXml($this, $doc, $channel);
 
         return $doc->saveXML();
     }
@@ -187,32 +198,32 @@ class NF_RSS
         if (($doc = DOMDocument::loadXML($xml)) == false)
             return false;
 
-        if (($rss = self::xmlGetChild($doc, 'rss')) == false)
+        if (($rss = $this->xmlGetChild($doc, 'rss')) == false)
             return false;
 
-        if (($channel = self::xmlGetChild($rss, 'channel')) == false)
+        if (($channel = $this->xmlGetChild($rss, 'channel')) == false)
             return false;
 
-        $this->title             = self::xmlGetChildData     ($channel, 'title');
-        $this->link              = self::xmlGetChildData     ($channel, 'link');
-        $this->description       = self::xmlGetChildData     ($channel, 'description');
-        $this->language          = self::xmlGetChildData     ($channel, 'language');
-        $this->copyright         = self::xmlGetChildData     ($channel, 'copyright');
-        $this->managingEditor    = self::xmlGetChildData     ($channel, 'managingEditor');
-        $this->webMaster         = self::xmlGetChildData     ($channel, 'webMaster');
-        $this->pubDate           = self::xmlGetChildData     ($channel, 'pubDate');
-        $this->lastBuildDate     = self::xmlGetChildData     ($channel, 'lastBuildDate');
-        $this->category          = self::xmlGetChildData     ($channel, 'category');
-        $this->category_domain   = self::xmlGetChildAttribute($channel, 'category', 'domain');
-        $this->generator         = self::xmlGetChildData     ($channel, 'generator');
-        $this->docs              = self::xmlGetChildData     ($channel, 'docs');
-        $this->ttl               = self::xmlGetChildData     ($channel, 'ttl');
-        $this->image_url         = self::xmlGetChildAttribute($channel, 'image', 'url');
-        $this->image_title       = self::xmlGetChildAttribute($channel, 'image', 'title');
-        $this->image_link        = self::xmlGetChildAttribute($channel, 'image', 'link');
-        $this->image_width       = self::xmlGetChildAttribute($channel, 'image', 'width');
-        $this->image_height      = self::xmlGetChildAttribute($channel, 'image', 'height');
-        $this->image_description = self::xmlGetChildAttribute($channel, 'image', 'description');
+        $this->title             = $this->xmlGetChildData     ($channel, 'title');
+        $this->link              = $this->xmlGetChildData     ($channel, 'link');
+        $this->description       = $this->xmlGetChildData     ($channel, 'description');
+        $this->language          = $this->xmlGetChildData     ($channel, 'language');
+        $this->copyright         = $this->xmlGetChildData     ($channel, 'copyright');
+        $this->managingEditor    = $this->xmlGetChildData     ($channel, 'managingEditor');
+        $this->webMaster         = $this->xmlGetChildData     ($channel, 'webMaster');
+        $this->pubDate           = $this->xmlGetChildData     ($channel, 'pubDate');
+        $this->lastBuildDate     = $this->xmlGetChildData     ($channel, 'lastBuildDate');
+        $this->category          = $this->xmlGetChildData     ($channel, 'category');
+        $this->category_domain   = $this->xmlGetChildAttribute($channel, 'category', 'domain');
+        $this->generator         = $this->xmlGetChildData     ($channel, 'generator');
+        $this->docs              = $this->xmlGetChildData     ($channel, 'docs');
+        $this->ttl               = $this->xmlGetChildData     ($channel, 'ttl');
+        $this->image_url         = $this->xmlGetChildAttribute($channel, 'image', 'url');
+        $this->image_title       = $this->xmlGetChildAttribute($channel, 'image', 'title');
+        $this->image_link        = $this->xmlGetChildAttribute($channel, 'image', 'link');
+        $this->image_width       = $this->xmlGetChildAttribute($channel, 'image', 'width');
+        $this->image_height      = $this->xmlGetChildAttribute($channel, 'image', 'height');
+        $this->image_description = $this->xmlGetChildAttribute($channel, 'image', 'description');
 
         $atomLinks = $channel->getElementsByTagName('atom:link');
         for ($i=0; $i<$atomLinks->length; $i++)
@@ -226,7 +237,7 @@ class NF_RSS
         for($i=0; $i<$nodes->length; $i++)
             if ($nodes->item($i)->nodeName == 'item')
             {
-                $this->addItem(NF_RSS_Item::fromDomItem($nodes->item($i)));
+                $this->addItem(NF_RSS_Item::fromDomItem($this, $nodes->item($i)));
                 if ($maxItems > 0 && count($this->items) >= $maxItems)
                     break;
             }
@@ -282,7 +293,7 @@ class NF_RSS
         else if (is_object($date) && $date instanceof NF_DateTime)
             $this->lastBuildDate = clone $date;
         else
-            $this->lastBuildDate = NF_DateTime::fromString($date);
+            $this->lastBuildDate = new NF_DateTime($date);
     }
 
     public function setManagingEditor($email, $name)
@@ -298,7 +309,7 @@ class NF_RSS
         else if (is_object($date) && $date instanceof NF_DateTime)
             $this->pubDate = clone $date;
         else
-            $this->pubDate = NF_DateTime::fromString($date);
+            $this->pubDate = new NF_DateTime($date);
     }
 
     public function setTtl($ttl)
