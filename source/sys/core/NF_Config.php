@@ -57,7 +57,7 @@ class NF_Config
         if ($filename == null)
         {
             $appPath  = NF_Path::$app;
-            $hostname = strtoupper(NF_Filter::name(gethostname()));
+            $hostname = strtoupper(NF_Filter::filename(gethostname()));
 
             if ($this->tryLoad($appPath . "settings.$hostname.conf"))
                 return;

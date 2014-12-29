@@ -19,7 +19,7 @@ if (!isset($_SERVER['DOCUMENT_ROOT']) || $_SERVER['DOCUMENT_ROOT'] == '')
     $_SERVER['DOCUMENT_ROOT'] = getcwd();
 
 // Set up the autoloader from the start
-require_once __DIR__ . '/NF_Autoloader.php';
+require_once __DIR__ . '/core/NF_Autoloader.php';
 
 // Check to see if we're using utf8
 if (NF::config()->main->utf8)

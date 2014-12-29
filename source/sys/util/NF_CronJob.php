@@ -96,7 +96,7 @@ abstract class NF_CronJob
 
     public static function getLastRun()
     {
-        $data = NF_Cache::get('__sys_cron');
+        $data = NF::cache()->get('__sys_cron');
         if ($data)
         {
             $data = unserialize($data);
@@ -109,6 +109,6 @@ abstract class NF_CronJob
 
     public static function updateLastRun()
     {
-        NF_Cache::set('__sys_cron', serialize(NF_DateTime::now()));
+        NF::cache()->set('__sys_cron', serialize(NF_DateTime::now()));
     }
 }

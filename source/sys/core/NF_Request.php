@@ -44,6 +44,9 @@ class NF_Request extends NF_Elements
         $this->_context = array();
 
         $this->_path = a($_SERVER, 'REDIRECT_URL', a($_SERVER, 'REQUEST_URI'));
+        if (substr($this->path, 0, 1) != '/')
+            $this->_path = '/' . $this->_path;
+
         if (($n = strpos($this->_path, '?')) !== false)
             $this->_path = substr($this->_path, 0, $n);
 
@@ -187,7 +190,7 @@ class NF_Request extends NF_Elements
                 $this->id = $route->id;
             $this->_page = $route->page;
             $this->_cmd  = $route->cmd;
-            $this->_path = str_replace('_', '/', $this->_page) . '/' . $this->_cmd . ($this->id ? '/' . $this->id : '');
+            $this->_path = '/' . str_replace('_', '/', $this->_page) . '/' . $this->_cmd . ($this->id ? '/' . $this->id : '');
 
             $page = NF_PageBase::load($route->page);
             if ($page == null)

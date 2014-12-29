@@ -324,6 +324,9 @@ class NF_DateTime
      */
     public function getDouble()
     {
+        if ($this->isNull())
+            return null;
+
         $daysPerMonth = array(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
         if ($this->isLeapYear())
             $daysPerMonth[1]++;
@@ -348,6 +351,9 @@ class NF_DateTime
      */
     public function getDoubleDate()
     {
+        if ($this->isNull())
+            return null;
+
         $daysPerMonth = array(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
         if ($this->isLeapYear())
             $daysPerMonth[1]++;
@@ -371,6 +377,9 @@ class NF_DateTime
      */
     public function getDoubleTime()
     {
+        if ($this->isNull())
+            return null;
+
         list(, , , $hour, $minute, $second) = array_values($this->getDateTime());
 
         return ($hour * 3600 + $minute * 60 + $second) / 86400;

@@ -59,7 +59,7 @@ class NF_Filter
      * @param string $filename
      * @return string
      */
-    public static function filename(&$filename)
+    public static function filename($filename)
     {
         return preg_replace('/[\x0-\x1F\/\:\*\?\'\"\<\>\|\\\]/', '', $filename);
     }
