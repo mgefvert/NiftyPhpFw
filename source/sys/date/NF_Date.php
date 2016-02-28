@@ -46,7 +46,13 @@ class NF_Date
             $this->dateTime = new DateTime($value, NF_TimeZone::utc());
 
         if ($this->dateTime !== null)
+        {
             $this->dateTime->setTime(0, 0, 0);
+
+            // Sanity check to handle 0000-00-00
+            if ((int)$this->dateTime->format('Y') < 1)
+                $this->dateTime = null;
+        }
     }
 
     /**

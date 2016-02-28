@@ -204,6 +204,16 @@ class NF_DateTime
     }
 
     /**
+     * Return a NF_DateTime object with the current date and time, set to UTC
+     *
+     * @return NF_DateTime
+     */
+    public static function utcNow()
+    {
+        return new NF_DateTime(new DateTime('now', NF_TimeZone::utc()));
+    }
+
+    /**
      * Return a NF_DateTime object with the current date (time is zero).
      *
      * @return NF_DateTime

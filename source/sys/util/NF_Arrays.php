@@ -172,4 +172,37 @@ class NF_Arrays
     {
         return empty($conditions) ? '' : '((' . implode(') or (', $conditions) . '))';
     }
+
+    public static function first(array $array)
+    {
+        $result = self::firstOrNull($array);
+        if ($result === null)
+            throw new NF_Exception("Array is empty");
+
+        return $result;
+    }
+
+    public static function firstOrNull(array $array)
+    {
+        $result = reset($array);
+        return $result === false ? null : $result;
+    }
+
+    public static function single(array $array)
+    {
+        $result = self::singleOrNull($array);
+        if ($result === false)
+            throw new NF_Exception("Array is empty");
+
+        return $result;
+    }
+
+    public static function singleOrNull(array $array)
+    {
+        if (count($array) > 1)
+            throw new NF_Exception("Single object expected but " . count($array) . " found in list");
+
+        $result = reset($array);
+        return $result === false ? null : $result;
+    }
 }

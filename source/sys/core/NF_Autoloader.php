@@ -1,10 +1,10 @@
 <?php
 
-require_once __DIR__ . '/core/exceptions.php';
-require_once __DIR__ . '/text/NF_Filter.php';
-require_once __DIR__ . '/core/NF.php';
-require_once __DIR__ . '/core/NF_Cache.php';
-require_once __DIR__ . '/core/NF_Path.php';
+require_once __DIR__ . '/exceptions.php';
+require_once __DIR__ . '/../text/NF_Filter.php';
+require_once __DIR__ . '/NF.php';
+require_once __DIR__ . '/NF_Cache.php';
+require_once __DIR__ . '/NF_Path.php';
 
 /**
  * The NF_Autoloader static class handles automatic loading of classes from the file system
@@ -23,9 +23,9 @@ class NF_AutoLoader
     public static function buildSysCache()
     {
         static::$syscache['NF_AutoLoader'] = __FILE__;
-        foreach(glob(__DIR__ . '/*/NF*.php') as $file)
+        foreach(glob(__DIR__ . '/../*/NF*.php') as $file)
             static::$syscache[str_replace('.php', '', basename($file))] = $file;
-        foreach(glob(__DIR__ . '/params/P*.php') as $file)
+        foreach(glob(__DIR__ . '/../params/P*.php') as $file)
             static::$syscache[str_replace('.php', '', basename($file))] = $file;
 
         self::$cache->set('__sys_classes', static::$syscache);

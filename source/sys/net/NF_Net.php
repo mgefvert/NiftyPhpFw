@@ -4,6 +4,12 @@ class NF_Net_Credentials
 {
     public $username;
     public $password;
+
+    public function __construct($username = null, $password = null)
+    {
+        $this->username = $username;
+        $this->password = $password;
+    }
 }
 
 /**
@@ -20,6 +26,12 @@ class NF_Net
     public $failOnError = true;
     public $followLocation = true;
     public $maxRedirs = 10;
+    public $cookies = [];
+
+    public function setCookie($name, $value)
+    {
+        $this->cookies[$name] = $value;
+    }
 
     public function request($url, $method, $params, NF_Net_Credentials $credentials = null)
     {
@@ -43,6 +55,14 @@ class NF_Net
                 CURLOPT_MAXREDIRS      => $this->maxRedirs,
                 CURLOPT_USERPWD        => $credentials != null ? $credentials->username . ':' . $credentials->password : null
             ));
+
+            if (!empty($this->cookies))
+            {
+                $cookies = [];
+                foreach($this->cookies as $k => $v)
+                    $cookies[] = "$k=$v";
+                curl_setopt($ch, CURLOPT_COOKIE, implode('; ', $cookies));
+            }
 
             switch($method)
             {
@@ -82,7 +102,7 @@ class NF_Net
      * @param string $url
      * @return string
      */
-    public function get($url, $params, NF_Net_Credentials $credentials = null)
+    public function get($url, $params = null, NF_Net_Credentials $credentials = null)
     {
         return $this->request($url, 'GET', $params, $credentials);
     }
@@ -95,7 +115,7 @@ class NF_Net
      * @param mixed $params  Either a string or an array
      * @return string
      */
-    public function post($url, $params, NF_Net_Credentials $credentials = null)
+    public function post($url, $params = null, NF_Net_Credentials $credentials = null)
     {
         return $this->request($url, 'POST', $params, $credentials);
     }
